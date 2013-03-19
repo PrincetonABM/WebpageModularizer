@@ -1,0 +1,18 @@
+{
+	"manifest_version": 2,
+
+	"name": "Modulr",
+	"description": "Modularize Webpages",
+	"version": "1.0",
+
+	"browser_action": {
+		"default_icon": "images/testicon19.png",
+		"default_popup": "popup.html",
+		"default_title": "Webpage Modularizer"
+
+	},
+
+	"permissions": [
+		"https://secure.flickr.com/"
+	] 
+}   
