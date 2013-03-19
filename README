@@ -1,1 +1,13 @@
-ffsdfsd
+Milestones
+
+03/18-03/24 (Spring Break): Get “Hello World” chrome extension working. Get client-server database interaction working.
+03/25-03/31: Be able to divide webpage into modules. 
+04/01-04/07: Be able to customize modules (orientation, font, color, etc.). Be able to translate modules into a template that can be read from and sent to a server.
+04/12: Project Prototype
+04/08-04/14: Implement the client-server interaction with a translatable template
+04/15-04/21: Establish standards for saving templates across specific domains, add additional functions (relevant information only ala Readability, etc)
+04/26: Alpha Test
+04/22-04/28: Should have working project; if we have time, add ability to send templates to friends, link others to your template.
+05/02 and 05/03: Beta Test (Last Class)
+05/08,05/09,05/10: demo days
+Dean’s Date: Final Submission
