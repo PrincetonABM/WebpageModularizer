@@ -3,16 +3,22 @@
 
 	"name": "Modulr",
 	"description": "Modularize Webpages",
-	"version": "1.0",
-
-	"browser_action": {
-		"default_icon": "images/testicon19.png",
-		"default_popup": "popup.html",
-		"default_title": "Webpage Modularizer"
-
+	"version": "1.0",	
+	
+	"background": { 
+		"scripts": ["init.js"]
 	},
 
+	"browser_action": {
+		"name": "Modularize the page",
+		"default_icon": "images/testicon19.png"
+	},
+
+
 	"permissions": [
-		"https://secure.flickr.com/"
-	] 
+		"tabs", 
+		"http://*/*",
+		"https://*/*"
+	]
+
 }   
