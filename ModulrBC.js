@@ -122,14 +122,17 @@ var Splitter = {
 				jhead.add(jhead.nextUntil(jtail, head.tagName)).wrapAll('<div class="module" />');
 				head = null;
 			}
+
 			// add the children of this unmodularizaable node
 			var children = node.children;
 			if (children != null) {
 				for (var j = 0; j < children.length; j++) {
 					targetQueue.push(children[j]);
 				}
+
 			}
 		}
+
 		//reset the receiving queue
 		receiveQueue.length = 0;
 		return targetQueue;
@@ -145,23 +148,25 @@ var Splitter = {
 		return (jnode.text().trim().length > 0);
 	},
 
-	hasImg : function(node) {
-		return (node.tagName == "IMG");
-	},
-
 	//returns true if some node within the singly branched node has an image or has text
 	// false otherwise
 	isValidBranch : function(node) {
 		var branchCrawler = node.cloneNode(true);
+		var hasText = false;
+		var hasImg = false;
+		var hasExcluded = false;
+		
 		while (branchCrawler.children != null) {
-			if (this.hasText(node) || this.hasImg(node))
-				return true;
+			if (this.hasText(node)) hasText = true;
+			if (node.tagName == "IMG") hasImg = true;
+			if ($.inArray(node.tagName, this.ExcludedTags) > -1) hasExcluded = true;
 
 			if (branchCrawler.children.length == 0)
-				return false;
+				return (hasText || hasImg) && (!hasExcluded);
+				
 			branchCrawler = branchCrawler.children[0];
 		}
-		return false;
+		return (hasText || hasImg) && (!hasExcluded);
 	}
 };
 
@@ -180,8 +185,8 @@ var Modulr = {
 
 	},
 	test : function(doc) {
-		//make the bg color of modules different so they can be seen easier
 		$('.module').css('background-color', '#E01B6A');
+
 		$('.module').draggable({
 			snap : true
 		});
