@@ -157,7 +157,6 @@ var Modularizer = {
                 }
             }
         }
-        alert(modules.length);
         return modules;
     },
     
@@ -180,7 +179,6 @@ $(document).ready(function() {
     });
     
     var modules = Modularizer.modularize(document);
-    alert('ready');
     
     modules.fadeTo('slow', .5);
     modules.mouseenter(function (e) {
