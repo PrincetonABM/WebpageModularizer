@@ -47,7 +47,6 @@ var Splitter = {
 		var nodesB = new Array();
 		var curQueue = 'A';
 		nodesA.push(body);
-
 		do {
 			if (curQueue == 'A')
 				nodesB = this.partition(nodesA).slice(0);
@@ -172,11 +171,13 @@ var Splitter = {
 };
 
 var Modulr = {
-
+	//create and return the buttons
 	createButtons : function(module) {
 		var buttons = new Array();
 		var openModule = true, isDraggable = false, isResizable = false;
-
+		//initial font size (100%)
+		var fontSize = 100;
+		var spacing = 0;
 		/******* create the buttons **********/
 		var closeButton = $('<input/>').attr({
 			value : 'X'
@@ -200,35 +201,37 @@ var Modulr = {
 			openModule = !openModule;
 		}).css({
 			position : 'absolute',
-			left : module.position().left,
+			left : module.position().left + spacing,
 			top : module.position().top,
 			'font-size' : '10px',
 			width : '2%',
 			visibility : 'hidden'
 		});
 		
-		 var dragButton = $('<input/>').attr({
-		 value : 'D'
-		 }).button().click(function() {
-		 module.draggable({
-		 	snap : true
-		 });
-		 if (!isDraggable) {
-		 module.draggable("enable");
-		 } else {
-		 module.draggable("disable");
-		 }
-		 isDraggable = !isDraggable;
+		spacing += closeButton.outerWidth();
+		var dragButton = $('<input/>').attr({
+			value : 'D'
+		}).button().click(function() {
+			module.draggable({
+				snap : true
+			});
+			if (!isDraggable) {
+				module.draggable("enable");
+			} else {
+				module.draggable("disable");
+			}
+			isDraggable = !isDraggable;
 
-		 }).css({
-		 position : 'absolute',
-		 left : module.position().left + 30,
-		 top : module.position().top,
-		 'font-size' : '10px',
-		 width : '2%',
-		 visibility : 'hidden'
-		 });
-	
+		}).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		
+		spacing += dragButton.outerWidth();
 		var resizeButton = $('<input/>').attr({
 			value : 'R'
 		}).button().click(function() {
@@ -241,7 +244,40 @@ var Modulr = {
 			isResizable = !isResizable;
 		}).css({
 			position : 'absolute',
-			left : module.position().left + 60,
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		
+		//all children of the module need to inherit this font size
+		module.find('*').css("font-size", "inherit");
+		spacing += resizeButton.outerWidth();
+		var sizeUpButton = $('<input/>').attr({
+			value : '^'
+		}).button().click(function() {
+			fontSize += 25;
+			module.css("font-size", fontSize + "%");
+			
+		}).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		
+		spacing += sizeUpButton.outerWidth();
+		var sizeDownButton = $('<input/>').attr({
+			value : 'v'
+		}).button().click(function() {
+			fontSize -= 25;
+			module.css("font-size", fontSize + "%");
+		}).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
 			top : module.position().top,
 			'font-size' : '10px',
 			width : '2%',
@@ -250,11 +286,14 @@ var Modulr = {
 		buttons.push(closeButton);
 		buttons.push(dragButton);
 		buttons.push(resizeButton);
-
+		buttons.push(sizeUpButton);
+		buttons.push(sizeDownButton);
+		
 		/*****************************/
 
 		return buttons;
 	},
+	
 	modularize : function(doc) {
 		$('.module').each(function() {
 			var module = $(this);
