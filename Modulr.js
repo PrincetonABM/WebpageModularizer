@@ -157,9 +157,11 @@ var Modulr = {
 	createButtons : function(module) {
 		var buttons = new Array();
 		var openModule = true, isDraggable = false, isResizable = false, isIsolated = false;
+		var fontChanged = false;
 		//initial font size (100%)
 		var fontSize = 100;
 		var spacing = 0;
+
 		/******* create the buttons **********/
 		var closeButton = $('<input/>').attr({
 			value : 'X',
@@ -173,11 +175,9 @@ var Modulr = {
 				}
 				closeButton.button("option", "label", "!");
 			} else {
-
 				for (var i = 0; i < buttons.length; i++) {
 					buttons[i].css('visibility', 'visible');
 				}
-
 				module.css('visibility', 'visible');
 				closeButton.button("option", "label", "X");
 			}
@@ -216,34 +216,16 @@ var Modulr = {
 		});
 
 		spacing += dragButton.outerWidth();
-		/*
-		 var resizeButton = $('<input/>').attr({
-		 value : 'R'
-		 }).button().click(function() {
-		 module.resizable();
-		 if (!isResizable) {
-		 module.resizable("enable");
-		 } else {
-		 module.resizable("disable");
-		 }
-		 isResizable = !isResizable;
-		 }).css({
-		 position : 'absolute',
-		 left : module.position().left + spacing,
-		 top : module.position().top,
-		 'font-size' : '10px',
-		 width : '2%',
-		 visibility : 'hidden'
-		 });
 
-		 //all children of the module need to inherit this font size
-		 spacing += resizeButton.outerWidth();*/
-
-		module.find('*').css("font-size", "inherit");
 		var sizeUpButton = $('<input/>').attr({
 			value : '^',
 			class : 'moduleBtn'
 		}).button().click(function() {
+			if (!fontChanged) {
+				//all children of the module need to inherit this font size
+				module.find('*').css("font-size", "inherit");
+				fontChanged = true;
+			}
 			fontSize += 25;
 			module.css("font-size", fontSize + "%");
 
@@ -261,6 +243,11 @@ var Modulr = {
 			value : 'v',
 			class : 'moduleBtn'
 		}).button().click(function() {
+			if (!fontChanged) {
+				//all children of the module need to inherit this font size
+				module.find('*').css("font-size", "inherit");
+				fontChanged = true;
+			}
 			fontSize -= 25;
 			module.css("font-size", fontSize + "%");
 		}).css({
@@ -379,15 +366,17 @@ var Modulr = {
 				}
 			});
 		});
-
 	},
 
 	process : function(doc) {
 		var modules = Modularizer.modularize(document);
+		
+		
 		for (var i = 0; i < modules.length; i++) {
-			module = $(modules[i]);
+			var module = $(modules[i]);
 			module.wrap('<div class="module" />');
 		}
+		console.log(document);
 		Modulr.modularize(document);
 	}
 };
