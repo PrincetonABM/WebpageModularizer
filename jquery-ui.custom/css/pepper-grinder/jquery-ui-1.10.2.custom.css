@@ -9,6 +9,8 @@
 .ui-helper-hidden {
 	display: none;
 }
+.ui-state-disabled.ui-draggable-disabled { opacity : 1;}
+.ui-state-disabled.ui-resizable-disabled { opacity : 1;}
 .ui-helper-hidden-accessible {
 	border: 0;
 	clip: rect(0 0 0 0);
