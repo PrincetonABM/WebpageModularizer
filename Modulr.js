@@ -172,114 +172,142 @@ var Splitter = {
 };
 
 var Modulr = {
-	modularize : function(doc) {
-		//change the background to pink so the modules can be seen easier
-		$('.module').css('background-color', '#E01B6A');
 
+	createButtons : function(module) {
+		var buttons = new Array();
+		var openModule = true, isDraggable = false, isResizable = false;
+
+		/******* create the buttons **********/
+		var closeButton = $('<input/>').attr({
+			value : 'X'
+		}).button().click(function() {
+			if (openModule) {
+				module.css('visibility', 'hidden');
+				for (var i = 0; i < buttons.length; i++) {
+					if (buttons[i] != closeButton)
+						buttons[i].css('visibility', 'hidden');
+				}
+				closeButton.button("option", "label", "!");
+			} else {
+
+				for (var i = 0; i < buttons.length; i++) {
+					buttons[i].css('visibility', 'visible');
+				}
+
+				module.css('visibility', 'visible');
+				closeButton.button("option", "label", "X");
+			}
+			openModule = !openModule;
+		}).css({
+			position : 'absolute',
+			left : module.position().left,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		
+		 var dragButton = $('<input/>').attr({
+		 value : 'D'
+		 }).button().click(function() {
+		 module.draggable({
+		 	snap : true
+		 });
+		 if (!isDraggable) {
+		 module.draggable("enable");
+		 } else {
+		 module.draggable("disable");
+		 }
+		 isDraggable = !isDraggable;
+
+		 }).css({
+		 position : 'absolute',
+		 left : module.position().left + 30,
+		 top : module.position().top,
+		 'font-size' : '10px',
+		 width : '2%',
+		 visibility : 'hidden'
+		 });
+	
+		var resizeButton = $('<input/>').attr({
+			value : 'R'
+		}).button().click(function() {
+			module.resizable();
+			if (!isResizable) {
+				module.resizable("enable");
+			} else {
+				module.resizable("disable");
+			}
+			isResizable = !isResizable;
+		}).css({
+			position : 'absolute',
+			left : module.position().left + 60,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		buttons.push(closeButton);
+		buttons.push(dragButton);
+		buttons.push(resizeButton);
+
+		/*****************************/
+
+		return buttons;
+	},
+	modularize : function(doc) {
 		$('.module').each(function() {
 			var module = $(this);
-
 			var showButtons = false;
-			var open = true;
-			var closeButton = $('<input/>').attr({
-				value : 'X'
-			}).button().click(function() {
-				if (open) {
-					module.css('visibility', 'hidden');
-					open = false;
-				} else {
-					module.css('visibility', 'visible');
-					open = true;
+			var buttons = Modulr.createButtons(module);
+			var isOn = new Array();
+
+			for (var i = 0; i < buttons.length; i++) {
+				isOn.push(false);
+				module.after(buttons[i]);
+			}
+
+			module.on({
+				click : function() {
+					if (!showButtons) {
+						for (var i = 0; i < buttons.length; i++) {
+							var button = buttons[i];
+							button.css({
+								visibility : 'visible'
+							});
+						}
+					} else {
+						for (var i = 0; i < buttons.length; i++) {
+							var button = buttons[i];
+							button.css({
+								visibility : 'hidden'
+							});
+						}
+					}
+					showButtons = !showButtons;
+					//reset the positions of the buttons
+					var spacing = 0;
+					for (var i = 0; i < buttons.length; i++) {
+						var button = buttons[i];
+						button.css({
+							position : 'absolute',
+							left : module.position().left + spacing,
+							top : module.position().top
+						});
+						spacing += button.outerWidth();
+					}
+
+				},
+				mouseenter : function() {
+					module.css({
+						outline : "dashed 3px green",
+					});
+				},
+				mouseleave : function() {
+					module.css("outline", "0px");
 				}
-			}).css({
-				position : 'absolute',
-				left : module.position().left,
-				top : module.position().top,
-				'font-size' : '10px',
-				width : '2%',
-				visibility : 'hidden'
 			});
-
-			var dragButton = $('<input/>').attr({
-				value : 'D'
-			}).button().click(function() {
-				module.draggable();
-
-			}).css({
-				position : 'absolute',
-				left : module.position().left + 30,
-				top : module.position().top,
-				'font-size' : '10px',
-				width : '2%',
-				visibility : 'hidden'
-			});
-			var resizeButton = $('<input/>').attr({
-				value : 'R'
-			}).button().click(function() {
-				module.resizable();
-			}).css({
-				position : 'absolute',
-				left : module.position().left + 60,
-				top : module.position().top,
-				'font-size' : '10px',
-				width : '2%',
-				visibility : 'hidden'
-			});
-
-			module.after(closeButton).after(dragButton).after(resizeButton);
-
-			module.change(function() {
-				closeButton.css({
-					position : 'absolute',
-					left : module.position().left,
-					top : module.position().top
-				});
-				dragButton.css({
-					position : 'absolute',
-					left : module.position().left + 30,
-					top : module.position().top
-				});
-				resizeButton.css({
-					position : 'absolute',
-					left : module.position().left + 60,
-					top : module.position().top,
-					'font-size' : '10px',
-					width : '2%',
-					visibility : 'hidden'
-				});
-			});
-
-			$(this).click(function() {
-
-				closeButton.css({
-					visibility : 'visible'
-				});
-				dragButton.css({
-					visibility : 'visible'
-				});
-				resizeButton.css({
-					visibility : 'visible'
-				});
-				
-				closeButton.css({
-					position : 'absolute',
-					left : module.position().left,
-					top : module.position().top
-				});
-				dragButton.css({
-					position : 'absolute',
-					left : module.position().left + 30,
-					top : module.position().top
-				});
-				resizeButton.css({
-					position : 'absolute',
-					left : module.position().left + 60,
-					top : module.position().top,
-				});
-
-			});
-
-		})
+		});
 	},
 
 	process : function(doc) {
