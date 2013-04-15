@@ -21,7 +21,7 @@ var Modularizer = {
 	MIN_AREA : 1,
 	// max pixel area for a module
 	MAX_AREA : screen.height * screen.width * 0.8,
-	MAX_AVG_AREA: screen.height * screen.width * 0.1,
+	MAX_AVG_AREA : screen.height * screen.width * 0.1,
 	// Minimum fraction of same tags required to form a group
 	GROUP_THRESHOLD : .8,
 	MIN_TEXT_LENGTH : 10,
@@ -30,7 +30,7 @@ var Modularizer = {
 	getArea : function(elem) {
 		return $(elem).height() * $(elem).width();
 	},
-	
+
 	//return the average branching factor of the element and its children
 	getAverageBF : function(elem) {
 		var totBranches = 0;
@@ -107,20 +107,21 @@ var Modularizer = {
 
 		console.log(this.getAvgElementSize(target));
 		modules = this.processModules(target);
-		
-	
 
 		console.log("there are modules: " + modules.length);
+		this.wrapModules(modules);
 
+	},
+
+	wrapModules : function(modules) {
 		for (var i = 0; i < modules.length; i++) {
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
-			module.wrap('<div class="module_Modulr" />');
+			module.wrap('<div class="module_Modulr" id="unset" />');
 		}
-
 	},
-	
+
 	isModuleValid : function(module) {
 		if (this.getArea(module) < this.MIN_AREA)
 			return false;
@@ -145,28 +146,27 @@ var Modularizer = {
 				continue;
 			if (!this.isModuleValid(module))
 				continue;
-			
-			
-			//if  two modules visually overlap, keep the smaller of the modules	
-	/*
-			var isValid = true;	
-				for (var i = 0; i < modules.length; i++) {
-				
-					if (this.contains(module, modules[i])) {
-						console.log("FOUND a containment\n");
-						modules.splice($.inArray(modules[i], modules), 1);
-						break;
-					} else if (this.contains(modules[i], module)) {
-						isValid = false;
-						console.log("FOUND a containment\n");
-						break;
-					}
-				}
-				
-				if (!isValid)
-					continue;
-				*/
-	
+
+			//if  two modules visually overlap, keep the smaller of the modules
+			/*
+			var isValid = true;
+			for (var i = 0; i < modules.length; i++) {
+
+			if (this.contains(module, modules[i])) {
+			console.log("FOUND a containment\n");
+			modules.splice($.inArray(modules[i], modules), 1);
+			break;
+			} else if (this.contains(modules[i], module)) {
+			isValid = false;
+			console.log("FOUND a containment\n");
+			break;
+			}
+			}
+
+			if (!isValid)
+			continue;
+			*/
+
 			/*
 			for (var i = 0; i < modules.length; i++) {
 
@@ -204,7 +204,7 @@ var Modularizer = {
 		}
 		return newModules;
 	},
-	
+
 	//does moduleB visually contain moduleA?
 	contains : function(moduleA, moduleB) {
 		jmoduleA = $(moduleA);
@@ -219,7 +219,7 @@ var Modularizer = {
 
 		return this.isWithin(moduleB, x1, y1) && this.isWithin(moduleB, x2, y2) && this.isWithin(moduleB, x3, y3) && this.isWithin(moduleB, x4, y4)
 	},
-	
+
 	//do these modules visually overlap?
 	collidesWith : function(moduleA, moduleB) {
 		jmoduleA = $(moduleA);
@@ -234,7 +234,7 @@ var Modularizer = {
 
 		return this.isWithin(moduleB, x1, y1) || this.isWithin(moduleB, x2, y2) || this.isWithin(moduleB, x3, y3) || this.isWithin(moduleB, x4, y4)
 	},
-	
+
 	// are the coordinates x and y located within the module?
 	isWithin : function(module, x, y) {
 		jmodule = $(module);
@@ -247,15 +247,15 @@ var Modularizer = {
 		else
 			return false;
 	},
-	
+
 	//are two modules close enough? it returns true if two modules seem to be structured similarly and are close together
 	/**
 	 * EX:
 	 *  [][]  these two modules are close enough
-	 *  
-	 * 
+	 *
+	 *
 	 * 	[]  as are these two
-	 *  [] 
+	 *  []
 	 */
 	closeEnough : function(moduleA, moduleB) {
 		var tolerance = 2;
@@ -348,6 +348,7 @@ var Modularizer = {
 var Modulr = {
 	//create and return the buttons
 	createButtons : function(module) {
+			
 		var buttons = new Array();
 		var openModule = true, isDraggable = false, isResizable = false, isIsolated = false;
 		var fontChanged = false;
@@ -416,7 +417,10 @@ var Modulr = {
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
-				module.find('*').css("font-size", "inherit");
+				module.find('*').css({
+					"font-size" : "inherit",
+					"line-height" : "1.4"
+				});
 				fontChanged = true;
 			}
 			fontSize += 25;
@@ -476,12 +480,54 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
-		
+
+		spacing += isolateButton.outerWidth();
+		var splitButton = $('<input/>').attr({
+			value : 'S',
+			class : 'moduleBtn'
+		}).button().click(function() {
+			console.log("fsdfsdfsdfsd");
+			if (module.children().length == 0) {
+				alert("This module can't be split!");
+				return;
+			}
+			
+			var child = module.children().eq(0);
+			child.unwrap();
+			var subModules = new Array();
+			//get the children
+			child.children().each(function() {
+				subModules.push($(this)[0]);
+			});
+			console.log("submodules: " + subModules.length);
+			//process and wrap the children
+			subModules = Modularizer.processModules(subModules);
+			Modularizer.wrapModules(subModules);
+			
+			//remove the buttons associated with the original (now split) module
+			for (var i = 0; i < buttons.length; i++) {
+				var button = buttons[i];
+				button.css({
+					visibility : 'hidden'
+				});
+			}
+			//recall this function as there are now new modules
+			Modulr.modularize(document);
+			
+		}).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
 		buttons.push(closeButton);
 		buttons.push(dragButton);
 		buttons.push(sizeUpButton);
 		buttons.push(sizeDownButton);
 		buttons.push(isolateButton);
+		buttons.push(splitButton);
 		/*****************************/
 
 		return buttons;
@@ -490,13 +536,19 @@ var Modulr = {
 	modularize : function(doc) {
 		$('.module_Modulr').each(function() {
 			var module = $(this);
+			
+			//setting this attribute means that modules that have already been processed are not processed again. 
+			if (module.attr('id') == 'set')
+				return;
+				
+			module.prop('id', 'set');
 			var showButtons = false;
 			var buttons = Modulr.createButtons(module);
-
+			
 			for (var i = 0; i < buttons.length; i++) {
 				module.after(buttons[i]);
 			}
-
+	
 			module.on({
 				click : function() {
 					if (!showButtons) {
@@ -524,7 +576,7 @@ var Modulr = {
 							left : module.position().left + spacing,
 							top : module.position().top,
 							//bring this element to the very front (so the buttons arent hidden by other elements)
-							zIndex: 9999
+							zIndex : 9999
 						});
 						spacing += button.outerWidth();
 					}
