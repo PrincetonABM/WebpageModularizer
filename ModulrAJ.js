@@ -1,200 +1,178 @@
-Array.prototype.swap=function(a, b)
-        {
-	var tmp=this[a];
-	this[a]=this[b];
-	this[b]=tmp;
-        };
-
-var Cleaner = {
-	clean : function(doc) {
-		$("script").remove();
-		$("meta").remove();
-	}
-};
-
 var Modularizer = {
-    // Tags that should be divided by
-    SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "IMG", "P", "SECTION", "SPAN", "OL", "UL"],
-    //Tags that affect text font that should not be divided by
-    DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
-    //Tags that must not be contained within modules
-    ExcludedTags : ["SCRIPT"],
-    //the maximum single branch length for a module
-    MAX_BRANCH_LEN : 5,
-    // min pixel area for a module
-    MIN_AREA : 5000,
-    // max pixel area for a module
-    MAX_AREA : 15000,
-    // Minimum fraction of same tags required to form a group
-    GROUP_THRESHOLD : .8,
+	// Tags that should be divided by
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "IMG", "P", "SECTION", "SPAN", "OL", "UL"],
+	//Tags that affect text font that should not be divided by
+	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
+	//Tags that must not be contained within modules
+	ExcludedTags : ["SCRIPT"],
+	//the maximum single branch length for a module
+	MAX_BRANCH_LEN : 5,
+	// min pixel area for a module
+	MIN_AREA : 1,
+	// max pixel area for a module
+	MAX_AREA : 150000,
+	// Minimum fraction of same tags required to form a group
+	GROUP_THRESHOLD : .8,
+	MIN_TEXT_LENGTH: 10,
 
-    
-    getBaseElements : function(tag) {
-        var bases = $();
-        var allTag = $(tag);
-        for (var i = 0; i < allTag.length; i++)
-        {
-            if (allTag.eq(i).find(tag).length === 0)
-                bases = bases.add(allTag.eq(i));
-        }
-        return bases;
-    },
-    /*        
-    partition : function(array, begin, end, pivot, tagString)
-    {
-	var piv=array[pivot];
-	array.swap(pivot, end-1);
-	var store=begin;
-	var ix;
-	for(ix=begin; ix<end-1; ++ix) {
-		if(array[ix].find(tagString).length <= piv.find(tagString).length) {
-			array.swap(store, ix);
-			++store;
+	getBaseElements : function(tag) {
+		var bases = new Array();
+		var allTags = $(tag);
+		for (var i = 0; i < allTags.length; i++) {
+			if (allTags.eq(i).find(tag).length === 0)
+				bases.push(allTags.eq(i).get(0));
 		}
+		return bases;
+	},
+
+	fillBlacklist : function(tagString, elem, blacklist) {
+		blacklist.push(elem);
+		$(elem).parents().each(function() {
+			var currentParent = $(this).get(0);
+			if ($.inArray(currentParent, blacklist) == -1) {
+				blacklist.push(currentParent);
+			}
+		});
+
+		$(elem).find(tagString).each(function() {
+			var currentChild = $(this).get(0);
+			if ($.inArray(currentChild, blacklist) == -1) {
+				blacklist.push(currentChild);
+			}
+		});
+
+		console.log("the black list is now: ");
+		this.printArray(blacklist);
+	},
+	getArea : function(elem) {
+		return $(elem).height() * $(elem).width();
+	},
+	modularize : function(doc) {
+		// modules is a array that stores elements as DOM elements rather than jquery elements because jquery elements of the same DOM
+		//element are different instances so they are not equal
+		var modules = new Array();
+		//elements in the blacklist cannot be modularized
+		var blacklist = new Array();
+
+		// Create a String which is the selector for all the split tags
+		var tagString = this.SplitTags[0];
+		for (var i = 1; i < this.SplitTags.length; i++)
+			tagString += ", " + this.SplitTags[i];
+		// Get the base elements which are split tags
+		var allBases = this.getBaseElements(tagString);
+
+		console.log("initial bases: ");
+		this.printArray(allBases);
+		// Group the elements into modules
+		while (allBases.length > 0) {
+			var current = allBases.shift();
+
+			if ($.inArray(current, modules) > -1)
+				continue;
+			if ($.inArray(current, blacklist) > -1)
+				continue;
+
+			
+/*
+
+			var numParents = $(current).parents().length;
+			
+			for (var i = 0; i < allBases.length; i++) {
+				if ($(allBases[i]).parents().length > numParents) {
+					allBases.push(current);
+					current = allBases[i];
+					break;
+				}
+			}
+
+			console.log("NUM PARENTS @@@@@@@@@@@@@@: " + numParents);*/
+
+			
+			// Only consider the elements which have some text or is an image
+			if ($(current).text().trim().length == 0 && $(current).find('img').length === 0)
+				continue;
+			
+			var siblings = $(current).siblings(tagString);
+			// If current has siblings
+			if (siblings.length > 0) {
+				// Find the number of siblings which have the same tag as current
+				var sameTagged = 0;
+				for (var i = 0; i < siblings.length; i++) {
+					if (siblings.eq(i).prop('tagName') === $(current).prop('tagName')) {
+						sameTagged++;
+					}
+				}
+
+				// If the fraction is below the grouping threshold make current and all of its siblings modules
+				if (((sameTagged / siblings.length) < this.GROUP_THRESHOLD) && ($(current).height() * $(current).width() > this.MIN_AREA)) {
+
+					if (this.getArea(current) < 1)
+						continue;
+
+					console.log("current is adding:");
+					console.log(current);
+					modules.push(current);
+					this.fillBlacklist(tagString, current, blacklist);
+
+					siblings.each(function() {
+						var sibling = $(this).get(0);
+
+						if ($.inArray(sibling, blacklist) > -1 || $.inArray(sibling, modules) > -1) {
+							return;
+						}
+
+						if (Modularizer.getArea(sibling) < 1)
+							return;
+
+						console.log("and siblings adding:");
+						console.log(sibling);
+						modules.push(sibling);
+
+						Modularizer.fillBlacklist(tagString, sibling, blacklist);
+					});
+				}
+				
+				// Otherwise add the parent as a module if its area is above the maximum allowed area
+				// or add the parent back to the elements being considered by the loop
+				else {
+					console.log("adding parent back!");
+					if ($.inArray(current.tagName, this.SplitTags) > 0)
+						allBases.push($(current).parent().get(0));
+				}
+			}
+			// If current has no siblings
+			else {
+				console.log("no siblings");
+
+				if ($(current).parents().length < 2) {
+					if ($.inArray(current, blacklist) == -1 && $.inArray(current, modules) == -1 && this.getArea(current) >= 1) {
+						modules.push(current);
+						Modularizer.fillBlacklist(tagString, current, blacklist);
+					}
+					console.log("modules length: " + modules.length);
+
+				} else {
+					if ($.inArray(current.tagName, this.SplitTags) > 0)
+						allBases.push($(current).parent().get(0));
+				}
+			}
+		}
+		console.log("blacklist: ");
+		this.printArray(blacklist);
+		return modules;
+	},
+	printArray : function(arr) {
+		console.log("array is: ");
+		for (var i = 0; i < arr.length; i++) {
+			console.log(arr[i]);
+		}
+	},
+	//combines moduleA and moduleB into one jquery module
+	merge : function(moduleA, moduleB) {
+		return moduleA.add(moduleB);
+	},
+
+	shouldGroup : function(element) {
+
 	}
-	array.swap(end-1, store);
-
-	return store;
-    },
-    sort : function(array, tagString)
-    {
-	this.qsort(array, 0, array.length);
-    },
-    qsort : function(array, begin, end)
-    {
-	if(end-1>begin) {
-		var pivot=begin+Math.floor(Math.random()*(end-begin));
-
-		pivot=this.partition(array, begin, end, pivot);
-
-		this.qsort(array, begin, pivot);
-		this.qsort(array, pivot+1, end);
-	}
-    },*/
-    
-            
-    modularize : function(doc) {
-        // modules is a jQuery object which will eventually contain the elements which are modules
-        var modules = $();
-        var tagString = this.SplitTags[0];
-        // Create a String which is the selector for all the split tags
-        for (var i = 1; i < this.SplitTags.length; i++)
-            tagString += ", " + this.SplitTags[i];
-        // Get the base elements which are split tags
-        var allBases = this.getBaseElements(tagString);
-        
-        // Group the elements into modules
-        while (allBases.length !== 0)
-        {
-            var current = allBases.eq(0);
-            allBases = allBases.not(current);/*
-            if (allBases.find(current).length > 0){
-                continue;
-            }*/
-            
-            // Continue if current is a descendant of any member of allBases
-            if (allBases.find(current).length !== 0)
-                continue;
-            
-            // Only consider the elements which take up space on the page
-            if (current.height() * current.width() === 0 || (current.text() === "" 
-                && current.find('img').length === 0))
-                continue;
-            
-            var siblings = current.siblings(tagString);
-            
-            // If current has siblings
-            if (siblings.length > 0){
-               /* if (siblings.find(allBases.not(siblings)))
-                    continue;*/
-                
-                // Find the number of siblings which have the same tag as current
-                var sameTagged = 0;
-                for (var i = 0; i < siblings.length; i++){
-                    if (siblings.eq(i).prop('tagName') === current.prop('tagName'))
-                    {
-                        sameTagged++;
-                    }
-                }
-                
-                // If the fraction is below the grouping threshold make current and all its siblings modules
-                if (sameTagged / siblings.length < this.GROUP_THRESHOLD &&
-                    current.width()* current.height() > this.MIN_AREA){
-                    modules = modules.add(current);
-                    modules = modules.add(siblings);
-                }
-                
-                // Otherwise add the parent as a module if its area is above the maximum allowed area
-                // or add the parent back to the elements being considered by the loop
-                else{
-                    if (current.parent().width()* current.parent().height() > this.MAX_AREA)
-                    {
-                        modules = modules.add(current.parent());
-                    }
-                    else
-                    {
-                        allBases = allBases.add(current.parent());
-                    }
-                }
-                
-                // Remove the siblings from allBases
-                allBases = allBases.not(siblings);
-                allBases = allBases.not(siblings.find(tagString));
-            }
-            
-            // If current has no siblings
-            else {
-                if (current.parent().prop('tagName').toLowerCase() === 'body')
-                    modules = modules.add(current);
-                else{
-                    if (current.parent().width()* current.parent().height() > this.MAX_AREA)
-                    {
-                        modules = modules.add(current.parent());
-                    }
-                    else{
-                        allBases = allBases.add(current.parent());
-                    }
-                }
-            }
-        }
-        return modules;
-    },
-    
-    
-    shouldGroup : function(element) {
-    
-    }
 };
-
-var Modulr = {
-	process : function(doc) {
-		Splitter.split(document);
-		Modulr.test(document);
-	}
-};
-
-$(document).ready(function() {
-    $('a').bind('click', function(e){
-        e.preventDefault();
-    });
-    
-    var modules = Modularizer.modularize(document);
-    
-    modules.fadeTo('slow', .5);
-    modules.mouseenter(function (e) {
-        $(this).fadeTo('fast', 1);
-        $(this).siblings().fadeTo("fast", .7);
-        return false;
-    });
-    modules.mouseleave(function (e) {
-        $(this).fadeTo('fast', .5);
-        $(this).siblings().fadeTo("fast", .5);
-    });
-    modules.click(function(e) {
-        if (e.ctrlKey) {
-            $(this).siblings().remove();
-        }
-        $(this).remove();
-        return false;
-    });
-});

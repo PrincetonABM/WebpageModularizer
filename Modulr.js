@@ -1,3 +1,5 @@
+// right now there is a lot of code that is not used because i've been testing a lot of different modularizing techniques
+
 var Cleaner = {
 	clean : function(doc) {
 		$("script").remove();
@@ -11,140 +13,331 @@ var Modularizer = {
 	//Tags that affect text font that should not be divided by
 	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
 	//Tags that must not be contained within modules
-	ExcludedTags : ["SCRIPT"],
+	ExcludedTags : ["SCRIPT", "IFRAME"],
+	ExcludedString : "script, iframe",
 	//the maximum single branch length for a module
 	MAX_BRANCH_LEN : 5,
 	// min pixel area for a module
-	MIN_AREA : 5000,
+	MIN_AREA : 1,
 	// max pixel area for a module
-	MAX_AREA : 15000,
+	MAX_AREA : screen.height * screen.width * 0.8,
+	MAX_AVG_AREA: screen.height * screen.width * 0.1,
 	// Minimum fraction of same tags required to form a group
 	GROUP_THRESHOLD : .8,
+	MIN_TEXT_LENGTH : 10,
+	MAX_BRANCHING_FACTOR : 4,
 
-	getBaseElements : function(tag) {
-		var bases = $();
-		var allTag = $(tag);
-		for (var i = 0; i < allTag.length; i++) {
-			if (allTag.eq(i).find(tag).length === 0)
-				bases = bases.add(allTag.eq(i));
-		}
-		return bases;
+	getArea : function(elem) {
+		return $(elem).height() * $(elem).width();
 	},
-	/*
-	 partition : function(array, begin, end, pivot, tagString)
-	 {
-	 var piv=array[pivot];
-	 array.swap(pivot, end-1);
-	 var store=begin;
-	 var ix;
-	 for(ix=begin; ix<end-1; ++ix) {
-	 if(array[ix].find(tagString).length <= piv.find(tagString).length) {
-	 array.swap(store, ix);
-	 ++store;
-	 }
-	 }
-	 array.swap(end-1, store);
+	
+	//return the average branching factor of the element and its children
+	getAverageBF : function(elem) {
+		var totBranches = 0;
+		var totElems = 0;
 
-	 return store;
-	 },
-	 sort : function(array, tagString)
-	 {
-	 this.qsort(array, 0, array.length);
-	 },
-	 qsort : function(array, begin, end)
-	 {
-	 if(end-1>begin) {
-	 var pivot=begin+Math.floor(Math.random()*(end-begin));
+		var elements = new Array();
+		elements.push(elem);
+		while (elements.length > 0) {
+			var e = elements.shift();
+			if ($(e).children().length == 0)
+				continue;
 
-	 pivot=this.partition(array, begin, end, pivot);
+			totElems++;
+			totBranches += $(e).children().length;
+			$(e).children().each(function() {
+				elements.push($(this)[0]);
+			});
+		}
+		return totBranches / totElems;
+	},
 
-	 this.qsort(array, begin, pivot);
-	 this.qsort(array, pivot+1, end);
-	 }
-	 },*/
-
+	getAvgElementSize : function(elements) {
+		var totSize = 0;
+		for (var i = 0; i < elements.length; i++) {
+			totSize += this.getArea(elements[i]);
+		}
+		return totSize / elements.length;
+	},
+	getLargestElementSize : function(elements) {
+		var largestArea = 0;
+		for (var i = 0; i < elements.length; i++) {
+			if (this.getArea(elements[i]) > largestArea) {
+				largestArea = this.getArea(elements[i]);
+			}
+		}
+		return largestArea;
+	},
 	modularize : function(doc) {
-		// modules is a jQuery object which will eventually contain the elements which are modules
-		var modules = $();
-		var tagString = this.SplitTags[0];
-		// Create a String which is the selector for all the split tags
-		for (var i = 1; i < this.SplitTags.length; i++)
-			tagString += ", " + this.SplitTags[i];
-		// Get the base elements which are split tags
-		var allBases = this.getBaseElements(tagString);
+		var modules = new Array();
+		var elements = new Array();
+		var body = doc.getElementsByTagName("html")[0].children[1];
+		var level = 0;
+		var elementsA = new Array();
+		var elementsB = new Array();
+		elementsA.push(body);
+		var cur = "A";
+		var source = elementsA;
+		var target = elementsB;
 
-		// Group the elements into modules
-		while (allBases.length !== 0) {
-			var current = allBases.eq(0);
-			allBases = allBases.not(current);
-			/*
-			if (allBases.find(current).length > 0){
-			continue;
-			}*/
+		do {
 
-			// Continue if current is a descendant of any member of allBases
-			if (allBases.find(current).length !== 0)
-				continue;
+			while (source.length > 0) {
+				var curElem = source.shift();
 
-			// Only consider the elements which take up space on the page
-			if (current.height() * current.width() === 0 || (current.text() === "" && current.find('img').length === 0))
-				continue;
-
-			var siblings = current.siblings(tagString);
-
-			// If current has siblings
-			if (siblings.length > 0) {
-				/* if (siblings.find(allBases.not(siblings)))
-				continue;*/
-
-				// Find the number of siblings which have the same tag as current
-				var sameTagged = 0;
-				for (var i = 0; i < siblings.length; i++) {
-					if (siblings.eq(i).prop('tagName') === current.prop('tagName')) {
-						sameTagged++;
-					}
+				if ($(curElem).children().length == 0) {
+					target.push(curElem);
 				}
 
-				// If the fraction is below the grouping threshold make current and all its siblings modules
-				if (sameTagged / siblings.length < this.GROUP_THRESHOLD && current.width() * current.height() > this.MIN_AREA) {
-					modules = modules.add(current);
-					modules = modules.add(siblings);
-				}
-
-				// Otherwise add the parent as a module if its area is above the maximum allowed area
-				// or add the parent back to the elements being considered by the loop
-				else {
-					if (current.parent().width() * current.parent().height() > this.MAX_AREA) {
-						modules = modules.add(current.parent());
-					} else {
-						allBases = allBases.add(current.parent());
-					}
-				}
-
-				// Remove the siblings from allBases
-				allBases = allBases.not(siblings);
-				allBases = allBases.not(siblings.find(tagString));
+				$(curElem).children().each(function() {
+					target.push($(this)[0]);
+				});
 			}
 
-			// If current has no siblings
-			else {
-				if (current.parent().prop('tagName').toLowerCase() === 'body')
-					modules = modules.add(current);
-				else {
-					if (current.parent().width() * current.parent().height() > this.MAX_AREA) {
-						modules = modules.add(current.parent());
-					} else {
-						allBases = allBases.add(current.parent());
-					}
-				}
+			if (this.getAvgElementSize(target) < this.MAX_AVG_AREA && this.getLargestElementSize(target) < this.MAX_AREA) {
+				console.log("max area: " + this.MAX_AREA);
+				console.log("area: " + this.getAvgElementSize(target));
+				break;
 			}
+
+			cur = (cur == 'A') ? 'B' : 'A';
+			source = (cur == 'A') ? elementsA : elementsB;
+			target = (cur == 'A') ? elementsB : elementsA;
+		} while (elementsA.length > 0 || elementsB.length > 0);
+
+		console.log(this.getAvgElementSize(target));
+		modules = this.processModules(target);
+		
+	
+
+		console.log("there are modules: " + modules.length);
+
+		for (var i = 0; i < modules.length; i++) {
+			var module = $(modules[i]);
+			console.log("AREA: " + module.width() * module.height());
+			console.log(modules[i]);
+			module.wrap('<div class="module_Modulr" />');
 		}
-		return modules;
+
+	},
+	
+	isModuleValid : function(module) {
+		if (this.getArea(module) < this.MIN_AREA)
+			return false;
+		return true;
+	},
+	printArray : function(arr) {
+		console.log("array is: ");
+		for (var i = 0; i < arr.length; i++) {
+			console.log(arr[i]);
+		}
 	},
 
-	shouldGroup : function(element) {
+	processModules : function(modules) {
+		var newModules = new Array();
+		while (modules.length > 0) {
+			var module = modules.shift();
+			var combinedModule = module;
+			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
+				continue;
+			//if the only children are excluded children, don't add the module
+			if ($(module).find(this.ExcludedString).length === $(module).find('*').length)
+				continue;
+			if (!this.isModuleValid(module))
+				continue;
+			
+			
+			//if  two modules visually overlap, keep the smaller of the modules	
+	/*
+			var isValid = true;	
+				for (var i = 0; i < modules.length; i++) {
+				
+					if (this.contains(module, modules[i])) {
+						console.log("FOUND a containment\n");
+						modules.splice($.inArray(modules[i], modules), 1);
+						break;
+					} else if (this.contains(modules[i], module)) {
+						isValid = false;
+						console.log("FOUND a containment\n");
+						break;
+					}
+				}
+				
+				if (!isValid)
+					continue;
+				*/
+	
+			/*
+			for (var i = 0; i < modules.length; i++) {
 
-	}
+			*/
+
+			// if the combined module is a parent to that module
+			/*
+			 if ($(combinedModule).has(modules[i]).length > 0) {
+			 console.log("is parent");
+			 //remove the module
+			 modules.splice($.inArray(modules[i], modules), 1);
+			 i--;
+			 continue;
+			 }*/
+
+			/*
+			 if (this.collidesWith(combinedModule, modules[i]))
+			 alert("collision occured");*/
+
+			/*
+			 if (this.closeEnough(combinedModule, modules[i])) {
+			 console.log("mergining");
+			 mergedModule = this.merge(combinedModule, modules[i]);
+			 if (mergedModule == null)
+			 continue;
+			 combinedModule = mergedModule;
+			 //remove the other module
+			 modules.splice($.inArray(modules[i], modules), 1);
+			 i--;
+			 }*/
+
+			/*		}*/
+
+			newModules.push(combinedModule);
+		}
+		return newModules;
+	},
+	
+	//does moduleB visually contain moduleA?
+	contains : function(moduleA, moduleB) {
+		jmoduleA = $(moduleA);
+		var x1 = jmoduleA.position().left;
+		var y1 = jmoduleA.position().top;
+		var x2 = x1 + jmoduleA.width();
+		var y2 = y1;
+		var x3 = x1;
+		var y3 = y1 + jmoduleA.height();
+		var x4 = x2;
+		var y4 = y3;
+
+		return this.isWithin(moduleB, x1, y1) && this.isWithin(moduleB, x2, y2) && this.isWithin(moduleB, x3, y3) && this.isWithin(moduleB, x4, y4)
+	},
+	
+	//do these modules visually overlap?
+	collidesWith : function(moduleA, moduleB) {
+		jmoduleA = $(moduleA);
+		var x1 = jmoduleA.position().left;
+		var y1 = jmoduleA.position().top;
+		var x2 = x1 + jmoduleA.width();
+		var y2 = y1;
+		var x3 = x1;
+		var y3 = y1 + jmoduleA.height();
+		var x4 = x2;
+		var y4 = y3;
+
+		return this.isWithin(moduleB, x1, y1) || this.isWithin(moduleB, x2, y2) || this.isWithin(moduleB, x3, y3) || this.isWithin(moduleB, x4, y4)
+	},
+	
+	// are the coordinates x and y located within the module?
+	isWithin : function(module, x, y) {
+		jmodule = $(module);
+		var x1 = jmodule.position().left;
+		var x2 = jmodule.position().left + jmodule.width();
+		var y1 = jmodule.position().top;
+		var y2 = jmodule.position().top + jmodule.height();
+		if (x1 <= x && x <= x2 && y1 <= y && y <= y2)
+			return true;
+		else
+			return false;
+	},
+	
+	//are two modules close enough? it returns true if two modules seem to be structured similarly and are close together
+	/**
+	 * EX:
+	 *  [][]  these two modules are close enough
+	 *  
+	 * 
+	 * 	[]  as are these two
+	 *  [] 
+	 */
+	closeEnough : function(moduleA, moduleB) {
+		var tolerance = 2;
+		var positionA = $(moduleA).position();
+		var positionB = $(moduleB).position();
+		var heightA = $(moduleA).height();
+		var heightB = $(moduleB).height();
+		var widthA = $(moduleA).width();
+		var widthB = $(moduleB).width();
+		console.log("====================");
+		console.log("left: " + positionA.left + ", " + positionB.left);
+		console.log("top: " + positionA.top + ", " + positionB.top);
+		console.log("height: " + heightA + ", " + heightB);
+		console.log("width: " + widthA + ", " + widthB);
+		console.log("====================");
+		console.log("left positioning diff: " + Math.abs(positionA.left - positionB.left));
+
+		if (Math.abs(positionA.left - positionB.left) < tolerance && Math.abs(widthA - widthB) < tolerance) {
+			var below, above;
+
+			if (positionA.top < positionB.top) {
+				below = $(moduleA);
+				above = $(moduleB);
+			} else {
+				below = $(moduleB);
+				above = $(moduleA);
+			}
+
+			console.log("top poisitions: " + Math.abs(below.position().top + below.height() - above.position().top));
+			if (Math.abs(below.position().top + below.height() - above.position().top) < tolerance) {
+				console.log("top close enough");
+				console.log(moduleA);
+				console.log(moduleB);
+				alert("mergining verticaly");
+				return true;
+
+			}
+			return false;
+		}
+		console.log("top positioning diff: " + Math.abs(positionA.top - positionB.top));
+		if (Math.abs(positionA.top - positionB.top) < tolerance && Math.abs(heightA - heightB) < tolerance) {
+			var left, right;
+			console.log("fd");
+			if (positionA.left < positionB.left) {
+				left = $(moduleA);
+				right = $(moduleB);
+			} else {
+				left = $(moduleB);
+				right = $(moduleA);
+			}
+			console.log("f");
+			if (Math.abs(left.position().left + left.width() - right.position().left) < tolerance) {
+				console.log("left close enough");
+				console.log(moduleA);
+				console.log(moduleB);
+				alert("merging horizontally " + left.position().top);
+
+				return true;
+
+			}
+			return false;
+		}
+
+		return false;
+	},
+
+	//combines moduleA and moduleB into one jquery module
+	merge : function(moduleA, moduleB) {
+		var parentsA = $.makeArray($(moduleA).parents());
+		var parentsB = $.makeArray($(moduleB).parents());
+
+		for (var i = 0; i < parentsA.length; i++) {
+
+			if ($.inArray(parentsA[i], parentsB) > -1) {
+				if ($(parentsA[i]).parents().length < 2)
+					return null;
+				return parentsA[i];
+			}
+		}
+		//this can't happen
+		return null;
+	},
 };
 /**
  * Takes wrapped up modules and adds UI features to the modules to allow for customizability
@@ -283,40 +476,19 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
-		/*
-		 spacing += sizeDownButton.outerWidth();
-		 var fontColorButton = $('<input/>').attr({
-		 value : 'C'
-		 }).button().click(function() {
-		 var colorPicker = $('<input type="text" id="custom" />');
-		 colorPicker.spectrum({
-		 color : "yellow"
-		 });
-		 fontColorButton.append(colorPicker);
-		 }).css({
-		 position : 'absolute',
-		 left : module.position().left + spacing,
-		 top : module.position().top,
-		 'font-size' : '10px',
-		 width : '2%',
-		 visibility : 'hidden'
-		 });
-		 */
-
+		
 		buttons.push(closeButton);
 		buttons.push(dragButton);
-		/*	buttons.push(resizeButton);*/
 		buttons.push(sizeUpButton);
 		buttons.push(sizeDownButton);
 		buttons.push(isolateButton);
-		/*buttons.push(fontColorButton);*/
 		/*****************************/
 
 		return buttons;
 	},
 
 	modularize : function(doc) {
-		$('.module').each(function() {
+		$('.module_Modulr').each(function() {
 			var module = $(this);
 			var showButtons = false;
 			var buttons = Modulr.createButtons(module);
@@ -350,7 +522,9 @@ var Modulr = {
 						button.css({
 							position : 'absolute',
 							left : module.position().left + spacing,
-							top : module.position().top
+							top : module.position().top,
+							//bring this element to the very front (so the buttons arent hidden by other elements)
+							zIndex: 9999
 						});
 						spacing += button.outerWidth();
 					}
@@ -369,13 +543,24 @@ var Modulr = {
 	},
 
 	process : function(doc) {
-		var modules = Modularizer.modularize(document);
-		
-		
-		for (var i = 0; i < modules.length; i++) {
-			var module = $(modules[i]);
-			module.wrap('<div class="module" />');
-		}
+		Modularizer.modularize(document);
+
+		/*
+		 for (var i = 0; i < modules.length; i++) {
+
+		 var current = modules[i];
+		 $(current).parents().each(function() {
+		 var currentParent = $(this).get(0);
+		 if ($.inArray(currentParent, modules) > -1) {
+
+		 console.log("============================ parent found ===========================");
+		 //kick the parent
+		 modules.splice($.inArray(currentParent, modules), 1);
+		 }
+		 });
+
+		 }*/
+
 		console.log(document);
 		Modulr.modularize(document);
 	}
