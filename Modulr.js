@@ -7,8 +7,8 @@ var Cleaner = {
 
 var Modularizer = {
 	// Tags that should be divided by
-	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE"],
-	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table",
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6"],
+	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6",
 	//Tags that affect text font that should not be divided by
 	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
 	//Tags that must not be contained within modules
@@ -109,6 +109,9 @@ var Modularizer = {
 	//wrap the modules in a div tag with a specific class
 	wrapModules : function(modules) {
 		for (var i = 0; i < modules.length; i++) {
+			if (modules[i].tagName == 'BODY' || modules[i].tagName == 'HTML')
+				continue;
+				
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
