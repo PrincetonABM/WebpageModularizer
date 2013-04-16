@@ -1,5 +1,3 @@
-// right now there is a lot of code that is not used because i've been testing a lot of different modularizing techniques
-
 var Cleaner = {
 	clean : function(doc) {
 		$("script").remove();
@@ -9,49 +7,29 @@ var Cleaner = {
 
 var Modularizer = {
 	// Tags that should be divided by
-	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "IMG", "P", "SECTION", "SPAN", "OL", "UL"],
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE"],
+	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table",
 	//Tags that affect text font that should not be divided by
 	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "IFRAME"],
 	ExcludedString : "script, iframe",
-	//the maximum single branch length for a module
-	MAX_BRANCH_LEN : 5,
 	// min pixel area for a module
-	MIN_AREA : 1,
-	// max pixel area for a module
+	MIN_AREA : 2,
+	// max pixel area for a single module
 	MAX_AREA : screen.height * screen.width * 0.8,
+	// max average area for the modules
 	MAX_AVG_AREA : screen.height * screen.width * 0.1,
-	// Minimum fraction of same tags required to form a group
-	GROUP_THRESHOLD : .8,
+	//modules with text must have at least some minimum length
 	MIN_TEXT_LENGTH : 10,
-	MAX_BRANCHING_FACTOR : 4,
+	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
+	MAX_DEPTH : 50,
 
+	//return the area of the single element
 	getArea : function(elem) {
 		return $(elem).height() * $(elem).width();
 	},
-
-	//return the average branching factor of the element and its children
-	getAverageBF : function(elem) {
-		var totBranches = 0;
-		var totElems = 0;
-
-		var elements = new Array();
-		elements.push(elem);
-		while (elements.length > 0) {
-			var e = elements.shift();
-			if ($(e).children().length == 0)
-				continue;
-
-			totElems++;
-			totBranches += $(e).children().length;
-			$(e).children().each(function() {
-				elements.push($(this)[0]);
-			});
-		}
-		return totBranches / totElems;
-	},
-
+	// return the average area of the elements
 	getAvgElementSize : function(elements) {
 		var totSize = 0;
 		for (var i = 0; i < elements.length; i++) {
@@ -59,6 +37,7 @@ var Modularizer = {
 		}
 		return totSize / elements.length;
 	},
+	// return the area of the largest element
 	getLargestElementSize : function(elements) {
 		var largestArea = 0;
 		for (var i = 0; i < elements.length; i++) {
@@ -68,9 +47,18 @@ var Modularizer = {
 		}
 		return largestArea;
 	},
+	//get the area of all of the elements
+	getTotalArea : function(elements) {
+		var area = 0;
+		for (var i = 0; i < elements.length; i++) {
+			area += this.getArea(elements[i]);
+		}
+		return area;
+	},
+
+	//find and wrap up modules
 	modularize : function(doc) {
 		var modules = new Array();
-		var elements = new Array();
 		var body = doc.getElementsByTagName("html")[0].children[1];
 		var level = 0;
 		var elementsA = new Array();
@@ -81,10 +69,10 @@ var Modularizer = {
 		var target = elementsB;
 
 		do {
-
 			while (source.length > 0) {
 				var curElem = source.shift();
 
+				// if this element has no children, just add the element itself to the next level
 				if ($(curElem).children().length == 0) {
 					target.push(curElem);
 				}
@@ -93,10 +81,17 @@ var Modularizer = {
 					target.push($(this)[0]);
 				});
 			}
-
-			if (this.getAvgElementSize(target) < this.MAX_AVG_AREA && this.getLargestElementSize(target) < this.MAX_AREA) {
+			console.log("Total area: " + this.getTotalArea(target));
+			level++;
+			if (level > this.MAX_DEPTH) {
+				console.log("MAX_DEPTH reached");
+				console.log("area: " + this.getAvgElementSize(target));
+				break;
+			}
+			if ((this.getAvgElementSize(target) < this.MAX_AVG_AREA)) {
 				console.log("max area: " + this.MAX_AREA);
 				console.log("area: " + this.getAvgElementSize(target));
+				console.log("level: " + level);
 				break;
 			}
 
@@ -104,15 +99,14 @@ var Modularizer = {
 			source = (cur == 'A') ? elementsA : elementsB;
 			target = (cur == 'A') ? elementsB : elementsA;
 		} while (elementsA.length > 0 || elementsB.length > 0);
-
 		console.log(this.getAvgElementSize(target));
+		console.log("There are elements: " + target.length);
 		modules = this.processModules(target);
-
 		console.log("there are modules: " + modules.length);
 		this.wrapModules(modules);
-
 	},
 
+	//wrap the modules in a div tag with a specific class
 	wrapModules : function(modules) {
 		for (var i = 0; i < modules.length; i++) {
 			var module = $(modules[i]);
@@ -121,89 +115,71 @@ var Modularizer = {
 			module.wrap('<div class="module_Modulr" id="unset" />');
 		}
 	},
-
-	isModuleValid : function(module) {
-		if (this.getArea(module) < this.MIN_AREA)
-			return false;
-		return true;
-	},
 	printArray : function(arr) {
 		console.log("array is: ");
 		for (var i = 0; i < arr.length; i++) {
 			console.log(arr[i]);
 		}
 	},
-
+	//uses heuristics to process and validate modules
 	processModules : function(modules) {
 		var newModules = new Array();
 		while (modules.length > 0) {
 			var module = modules.shift();
-			var combinedModule = module;
+			console.log("processing this module:");
+			console.log(module);
+
 			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
 				continue;
+
+			//is the module big enough?
+			if (this.getArea(module) < this.MIN_AREA)
+				continue;
+			
+			//if the module does not have a tagName that can be split by get the closest parent with the right tag
+			if ($.inArray(module.tagName, this.SplitTags) == -1) {
+				var parents = $(module).parents(this.SplitTags);
+				if (parents.length == 0)
+					continue;
+				console.log("found an issueeeeeeeeeeee");
+				console.log(module);
+				module = parents.eq(0)[0];
+				
+				
+				console.log(module);
+				newModules.push(module);
+				continue;
+			}
+			
+			if ($(module).children().length <= 0) {
+				newModules.push(module);
+				continue;
+			}
+
 			//if the only children are excluded children, don't add the module
+
 			if ($(module).find(this.ExcludedString).length === $(module).find('*').length)
 				continue;
-			if (!this.isModuleValid(module))
-				continue;
 
-			//if  two modules visually overlap, keep the smaller of the modules
-			/*
-			var isValid = true;
-			for (var i = 0; i < modules.length; i++) {
 
-			if (this.contains(module, modules[i])) {
-			console.log("FOUND a containment\n");
-			modules.splice($.inArray(modules[i], modules), 1);
-			break;
-			} else if (this.contains(modules[i], module)) {
-			isValid = false;
-			console.log("FOUND a containment\n");
-			break;
+			var textLength = $(module).text().length;
+			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original
+			//add them for processing
+			if (textLength > 0 && $(module).children().length > 0) {
+				if ($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) {
+					$(module).children(this.SplitString).each(function() {
+						modules.push($(this)[0]);
+					});
+					continue;
+				}
 			}
-			}
-
-			if (!isValid)
-			continue;
-			*/
-
-			/*
-			for (var i = 0; i < modules.length; i++) {
-
-			*/
-
-			// if the combined module is a parent to that module
-			/*
-			 if ($(combinedModule).has(modules[i]).length > 0) {
-			 console.log("is parent");
-			 //remove the module
-			 modules.splice($.inArray(modules[i], modules), 1);
-			 i--;
-			 continue;
-			 }*/
-
-			/*
-			 if (this.collidesWith(combinedModule, modules[i]))
-			 alert("collision occured");*/
-
-			/*
-			 if (this.closeEnough(combinedModule, modules[i])) {
-			 console.log("mergining");
-			 mergedModule = this.merge(combinedModule, modules[i]);
-			 if (mergedModule == null)
-			 continue;
-			 combinedModule = mergedModule;
-			 //remove the other module
-			 modules.splice($.inArray(modules[i], modules), 1);
-			 i--;
-			 }*/
-
-			/*		}*/
-
-			newModules.push(combinedModule);
+			newModules.push(module);
 		}
 		return newModules;
 	},
+
+
+/***** THE FUNCTIONS BELOW ARE CURRENTLY UNUSED IN THE IMPLEMENTATION **/
 
 	//does moduleB visually contain moduleA?
 	contains : function(moduleA, moduleB) {
@@ -348,7 +324,7 @@ var Modularizer = {
 var Modulr = {
 	//create and return the buttons
 	createButtons : function(module) {
-			
+
 		var buttons = new Array();
 		var openModule = true, isDraggable = false, isResizable = false, isIsolated = false;
 		var fontChanged = false;
@@ -487,23 +463,9 @@ var Modulr = {
 			class : 'moduleBtn'
 		}).button().click(function() {
 			console.log("fsdfsdfsdfsd");
-			if (module.children().length == 0) {
-				alert("This module can't be split!");
+			if (!Modulr.split(module)) {
 				return;
 			}
-			
-			var child = module.children().eq(0);
-			child.unwrap();
-			var subModules = new Array();
-			//get the children
-			child.children().each(function() {
-				subModules.push($(this)[0]);
-			});
-			console.log("submodules: " + subModules.length);
-			//process and wrap the children
-			subModules = Modularizer.processModules(subModules);
-			Modularizer.wrapModules(subModules);
-			
 			//remove the buttons associated with the original (now split) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
@@ -513,7 +475,7 @@ var Modulr = {
 			}
 			//recall this function as there are now new modules
 			Modulr.modularize(document);
-			
+
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -533,22 +495,43 @@ var Modulr = {
 		return buttons;
 	},
 
+	split : function(module) {
+		//unwrap the module
+		var child = module.children().eq(0);
+		if (child.children(this.SplitTags).length <= 0) {
+			alert("This module can't be split");
+			return false;
+		}
+		child.unwrap();
+		var subModules = new Array();
+		
+		//get the children
+		child.children(this.SplitTags).each(function() {
+			subModules.push($(this)[0]);
+		});
+		console.log("submodules: " + subModules.length);
+		//process and wrap the children
+		subModules = Modularizer.processModules(subModules);
+		Modularizer.wrapModules(subModules);
+		return true;
+
+	},
 	modularize : function(doc) {
 		$('.module_Modulr').each(function() {
 			var module = $(this);
-			
-			//setting this attribute means that modules that have already been processed are not processed again. 
+
+			//setting this attribute means that modules that have already been processed are not processed again.
 			if (module.attr('id') == 'set')
 				return;
-				
+
 			module.prop('id', 'set');
 			var showButtons = false;
 			var buttons = Modulr.createButtons(module);
-			
+
 			for (var i = 0; i < buttons.length; i++) {
 				module.after(buttons[i]);
 			}
-	
+
 			module.on({
 				click : function() {
 					if (!showButtons) {
