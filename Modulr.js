@@ -593,7 +593,45 @@ var Modulr = {
 			});
 		});
 	},
-
+        // Save the current customization of the page
+        save : function() {
+                var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
+                $('.Modulr_save_button').attr({
+			value : 'S',
+			class : 'moduleBtn'
+		}).click(function() {
+                    // Save the current page customization
+                    
+                    var wrappedModules = $('.module_Modulr');/*
+                    var moduleChildren = $();
+                    wrappedModules.each(function() {
+                        moduleChildren = moduleChildren.add($(this).children());
+                    });*/
+                    var storageName = 'Modulr_' + window.location;
+                    chrome.storage.local.set({storageName: wrappedModules}, function() {
+                        alert('Save Successful!');
+                    });
+		}).css({
+			position : 'fixed',
+			left : '50%',
+			top : '20px',
+			'font-size' : '10px',
+			width : '5%',
+			visibility : 'visible'
+		});
+        },
+                
+        // Load a saved customization        
+        load: function() {
+            var getString = 'Modulr_' + window.location;
+            chrome.storage.local.get(getString, function(wrappedModules) {
+                wrappedModules.each(function() {
+                    $(this).children().wrap($(this).clone());
+                });
+            });
+            
+        },
+                
 	process : function(doc) {
 		Modularizer.modularize(document);
 
@@ -615,10 +653,11 @@ var Modulr = {
 
 		console.log(document);
 		Modulr.modularize(document);
+                Modulr.save();
 	}
 };
 
-$(document).ready(function() {
+$(document).ready(function() {    
 	Modulr.process(document);
 });
 
