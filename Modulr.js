@@ -584,7 +584,7 @@ var Modulr = {
                 var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
                 $('.Modulr_save_button').attr({
 			value : 'S',
-			class : 'moduleBtn'
+			class : 'saveBtn'
 		}).click(function() {
                     // Save the current page customization
                     
@@ -594,28 +594,51 @@ var Modulr = {
                         moduleChildren = moduleChildren.add($(this).children());
                     });*/
                     var storageName = 'Modulr_' + window.location;
-                    chrome.storage.local.set({storageName: wrappedModules}, function() {
-                        alert('Save Successful!');
-                    });
+                    var arr = [];
+                    wrappedModules.each(function() {
+                        arr.push($(this).html());
+                    })
+                    localStorage['dat'] = JSON.stringify(arr);
 		}).css({
 			position : 'fixed',
-			left : '50%',
+			left : '90%',
 			top : '20px',
 			'font-size' : '10px',
-			width : '5%',
+			width : '35px',
+                        height : '22px',
+                        'border-radius': '3px',
 			visibility : 'visible'
 		});
         },
                 
         // Load a saved customization        
         load: function() {
-            var getString = 'Modulr_' + window.location;
-            chrome.storage.local.get(getString, function(wrappedModules) {
-                wrappedModules.each(function() {
-                    $(this).children().wrap($(this).clone());
-                });
-            });
-            
+            var loadButton = $('body').append('<input class="Modulr_load_button"></input>');
+                $('.Modulr_load_button').attr({
+			value : 'L',
+			class : 'saveBtn'
+		}).click(function() {
+                    // Save the current page customization
+                    
+                    var wrappedModules = $('.module_Modulr');/*
+                    var moduleChildren = $();
+                    wrappedModules.each(function() {
+                        moduleChildren = moduleChildren.add($(this).children());
+                    });*/
+                    var storageName = 'Modulr_' + window.location;
+                    var loadedModules = JSON.parse(localStorage['dat']);
+                    for(var i = 0; i < loadedModules.length; i++)
+                        alert(loadedModules[i]);
+		}).css({
+			position : 'fixed',
+			left : '95%',
+			top : '20px',
+			'font-size' : '10px',
+			width : '35px',
+                        height : '22px',
+                        'border-radius': '3px',
+			visibility : 'visible'
+		});
         },
                 
 	process : function(doc) {
@@ -640,6 +663,7 @@ var Modulr = {
 		console.log(document);
 		Modulr.modularize(document);
                 Modulr.save();
+                Modulr.load();
 	}
 };
 
