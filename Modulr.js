@@ -7,8 +7,8 @@ var Cleaner = {
 
 var Modularizer = {
 	// Tags that should be divided by
-	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6"],
-	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6",
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL"],
+	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl",
 	//Tags that affect text font that should not be divided by
 	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
 	//Tags that must not be contained within modules
@@ -89,6 +89,7 @@ var Modularizer = {
 				break;
 			}
 			if ((this.getAvgElementSize(target) < this.MAX_AVG_AREA)) {
+				console.log("largest area: " + this.getLargestElementSize(target));
 				console.log("max area: " + this.MAX_AREA);
 				console.log("area: " + this.getAvgElementSize(target));
 				console.log("level: " + level);
@@ -111,7 +112,7 @@ var Modularizer = {
 		for (var i = 0; i < modules.length; i++) {
 			if (modules[i].tagName == 'BODY' || modules[i].tagName == 'HTML')
 				continue;
-				
+
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
@@ -135,10 +136,25 @@ var Modularizer = {
 			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
 				continue;
 
-			//is the module big enough?
-			if (this.getArea(module) < this.MIN_AREA)
-				continue;
-			
+			//is the module and its children big enough?
+			if (this.getArea(module) < this.MIN_AREA) {
+				var tooSmall = true;
+				$(module).find('*').each(function() {
+					if (!tooSmall)
+						return;
+
+					if (Modularizer.getArea(this) > Modularizer.MIN_AREA)
+						tooSmall = false;
+
+				});
+
+				if (tooSmall) {
+
+					console.log("module too small");
+					continue;
+				}
+			}
+
 			//if the module does not have a tagName that can be split by get the closest parent with the right tag
 			if ($.inArray(module.tagName, this.SplitTags) == -1) {
 				var parents = $(module).parents(this.SplitTags);
@@ -147,13 +163,12 @@ var Modularizer = {
 				console.log("found an issueeeeeeeeeeee");
 				console.log(module);
 				module = parents.eq(0)[0];
-				
-				
+
 				console.log(module);
 				newModules.push(module);
 				continue;
 			}
-			
+
 			if ($(module).children().length <= 0) {
 				newModules.push(module);
 				continue;
@@ -161,15 +176,20 @@ var Modularizer = {
 
 			//if the only children are excluded children, don't add the module
 
-			if ($(module).find(this.ExcludedString).length === $(module).find('*').length)
+			if ($(module).find(this.ExcludedString).length === $(module).find('*').length) {
+				console.log("all children excluded");
 				continue;
 
+			}
 
 			var textLength = $(module).text().length;
-			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original
+			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original AND if the area of the module is less than the total area of the children
+			// or if the children are within 0.1 of the original parent area
 			//add them for processing
 			if (textLength > 0 && $(module).children().length > 0) {
-				if ($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) {
+				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) 
+					&& (this.getArea(module) < this.getTotalArea($(module).children().toArray()) || Math.abs(this.getArea(module) - this.getTotalArea($(module).children().toArray())) < 0.1 * this.getArea(module))) {
+					console.log("adding the children");
 					$(module).children(this.SplitString).each(function() {
 						modules.push($(this)[0]);
 					});
@@ -181,8 +201,7 @@ var Modularizer = {
 		return newModules;
 	},
 
-
-/***** THE FUNCTIONS BELOW ARE CURRENTLY UNUSED IN THE IMPLEMENTATION **/
+	/***** THE FUNCTIONS BELOW ARE CURRENTLY UNUSED IN THE IMPLEMENTATION **/
 
 	//does moduleB visually contain moduleA?
 	contains : function(moduleA, moduleB) {
@@ -507,7 +526,7 @@ var Modulr = {
 		}
 		child.unwrap();
 		var subModules = new Array();
-		
+
 		//get the children
 		child.children(this.SplitTags).each(function() {
 			subModules.push($(this)[0]);
@@ -569,20 +588,21 @@ var Modulr = {
 
 				},
 				mouseenter : function() {
-					module.css({
-						outline : "dashed 3px green",
+					$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
+						opacity : "0.8",
 					});
+
 				},
 				mouseleave : function() {
-					module.css("outline", "0px");
+					$('*').css("opacity", "1.0");
 				}
 			});
 		});
 	},
-        // Save the current customization of the page
-        save : function() {
-                var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
-                $('.Modulr_save_button').attr({
+	// Save the current customization of the page
+	save : function() {
+		var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
+		$('.Modulr_save_button').attr({
 			value : 'S',
 			class : 'saveBtn'
 		}).click(function() {
@@ -594,7 +614,6 @@ var Modulr = {
                     wrappedModules.each(function() {
                         moduleChildren = moduleChildren.add($(this).children());
                     });*/
-                    wrappedModules.css('background-color', 'purple');
                     var storageName = 'Modulr_' + window.location;
                     var arr = [];
                     wrappedModules.each(function() {
@@ -614,15 +633,14 @@ var Modulr = {
                     
 
                     localStorage[storageName] = JSON.stringify(arr);
-                                     
 		}).css({
 			position : 'fixed',
 			left : '90%',
 			top : '20px',
 			'font-size' : '10px',
 			width : '35px',
-                        height : '22px',
-                        'border-radius': '3px',
+			height : '22px',
+			'border-radius' : '3px',
 			visibility : 'visible'
 		});
         },
@@ -654,7 +672,6 @@ var Modulr = {
             });
             return true;
         },
-                
 	process : function(doc) {
                 if (!Modulr.checkForLoad())
                     Modularizer.modularize(document);
@@ -681,7 +698,7 @@ var Modulr = {
 	}
 };
 
-$(document).ready(function() {    
+$(document).ready(function() {
 	Modulr.process(document);
 });
 
