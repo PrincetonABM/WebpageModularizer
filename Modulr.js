@@ -579,7 +579,68 @@ var Modulr = {
 			});
 		});
 	},
-
+        // Save the current customization of the page
+        save : function() {
+                var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
+                $('.Modulr_save_button').attr({
+			value : 'S',
+			class : 'saveBtn'
+		}).click(function() {
+                    // Save the current page customization
+                    
+                    var wrappedModules = $('.module_Modulr');/*
+                    var moduleChildren = $();
+                    wrappedModules.each(function() {
+                        moduleChildren = moduleChildren.add($(this).children());
+                    });*/
+                    var storageName = 'Modulr_' + window.location;
+                    var arr = [];
+                    wrappedModules.each(function() {
+                        arr.push($(this).html());
+                    })
+                    localStorage['dat'] = JSON.stringify(arr);
+		}).css({
+			position : 'fixed',
+			left : '90%',
+			top : '20px',
+			'font-size' : '10px',
+			width : '35px',
+                        height : '22px',
+                        'border-radius': '3px',
+			visibility : 'visible'
+		});
+        },
+                
+        // Load a saved customization        
+        load: function() {
+            var loadButton = $('body').append('<input class="Modulr_load_button"></input>');
+                $('.Modulr_load_button').attr({
+			value : 'L',
+			class : 'saveBtn'
+		}).click(function() {
+                    // Save the current page customization
+                    
+                    var wrappedModules = $('.module_Modulr');/*
+                    var moduleChildren = $();
+                    wrappedModules.each(function() {
+                        moduleChildren = moduleChildren.add($(this).children());
+                    });*/
+                    var storageName = 'Modulr_' + window.location;
+                    var loadedModules = JSON.parse(localStorage['dat']);
+                    for(var i = 0; i < loadedModules.length; i++)
+                        alert(loadedModules[i]);
+		}).css({
+			position : 'fixed',
+			left : '95%',
+			top : '20px',
+			'font-size' : '10px',
+			width : '35px',
+                        height : '22px',
+                        'border-radius': '3px',
+			visibility : 'visible'
+		});
+        },
+                
 	process : function(doc) {
 		Modularizer.modularize(document);
 
@@ -601,10 +662,12 @@ var Modulr = {
 
 		console.log(document);
 		Modulr.modularize(document);
+                Modulr.save();
+                Modulr.load();
 	}
 };
 
-$(document).ready(function() {
+$(document).ready(function() {    
 	Modulr.process(document);
 });
 

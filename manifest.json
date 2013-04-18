@@ -16,7 +16,8 @@
 
 
 	"permissions": [
-		"tabs", 
+		"tabs",
+                "storage",
 		"http://*/*",
 		"https://*/*"
 	]
