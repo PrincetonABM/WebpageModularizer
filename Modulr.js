@@ -59,7 +59,7 @@ var Modularizer = {
 	//find and wrap up modules
 	modularize : function(doc) {
 		var modules = new Array();
-		var body = doc.getElementsByTagName("html")[0].children[1];
+		var body = $(document).find('body')[0];
 		var level = 0;
 		var elementsA = new Array();
 		var elementsB = new Array();
@@ -588,13 +588,19 @@ var Modulr = {
 
 				},
 				mouseenter : function() {
+					module.css("outline", "green dotted 5px");
+					
+/*
+						
 					$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
 						opacity : "0.8",
 					});
+*/
 
 				},
 				mouseleave : function() {
-					$('*').css("opacity", "1.0");
+					module.css("outline", "green dotted 0px");
+					//$('*').css("opacity", "1.0");
 				}
 			});
 		});
