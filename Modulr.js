@@ -7,10 +7,11 @@ var Cleaner = {
 
 var Modularizer = {
 	// Tags that should be divided by
-	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL"],
-	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl",
-	//Tags that affect text font that should not be divided by
-	DescriptiveTags : ["FONT", "B", "I", "STRONG", "EM", "SUB", "SUP", "CODE"],
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", 
+				"HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", 
+				"TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", 
+				"ADDRESS", "DD"],
+	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd",
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "IFRAME"],
 	ExcludedString : "script, iframe",
@@ -130,6 +131,9 @@ var Modularizer = {
 		var newModules = new Array();
 		while (modules.length > 0) {
 			var module = modules.shift();
+			if ($(module).is('.moduleBtn')) { 
+				continue;
+			}
 			console.log("processing this module:");
 			console.log(module);
 
@@ -142,14 +146,13 @@ var Modularizer = {
 				$(module).find('*').each(function() {
 					if (!tooSmall)
 						return;
-
+						
 					if (Modularizer.getArea(this) > Modularizer.MIN_AREA)
 						tooSmall = false;
 
 				});
 
 				if (tooSmall) {
-
 					console.log("module too small");
 					continue;
 				}
@@ -160,11 +163,39 @@ var Modularizer = {
 				var parents = $(module).parents(this.SplitTags);
 				if (parents.length == 0)
 					continue;
-				console.log("found an issueeeeeeeeeeee");
+				console.log("NOTE module does not have a valid tag name");
 				console.log(module);
 				module = parents.eq(0)[0];
-
 				console.log(module);
+				
+				for (var i  = 0; i < newModules.length;i++) {
+					var otherModule = $(newModules[i]);
+					
+					//check if the other module is a child of the current module
+					if ($(module).has(otherModule).length > 0) {
+						console.log("removing the following module")
+						console.log(otherModule[0])
+						newModules.splice(i, 1);
+						i--;
+					}
+				}
+				
+				var isValid = true;
+				for (var i  = 0; i < newModules.length;i++) {
+					var otherModule = $(newModules[i]);
+					
+					//check if the other module is a parent of the current module
+					if (otherModule.has($(module)).length > 0) {
+						isValid = false;
+						break;
+					}
+					
+				}
+				
+				if (!isValid) {
+					continue;
+				}
+				
 				newModules.push(module);
 				continue;
 			}
@@ -175,7 +206,6 @@ var Modularizer = {
 			}
 
 			//if the only children are excluded children, don't add the module
-
 			if ($(module).find(this.ExcludedString).length === $(module).find('*').length) {
 				console.log("all children excluded");
 				continue;
@@ -196,6 +226,7 @@ var Modularizer = {
 					continue;
 				}
 			}
+			console.log("successfully adding the module")
 			newModules.push(module);
 		}
 		return newModules;
@@ -484,20 +515,51 @@ var Modulr = {
 			value : 'S',
 			class : 'moduleBtn'
 		}).button().click(function() {
-			console.log("fsdfsdfsdfsd");
+			
 			if (!Modulr.split(module)) {
+				alert("This module can't be split");
 				return;
 			}
 			//remove the buttons associated with the original (now split) module
+			for (var i = 0; i < buttons.length; i++) {
+				var button = buttons[i];
+				button.remove();
+				/*
+				button.css({
+									visibility : 'hidden'
+								});*/
+			}
+			//recall this function as there are now new modules
+			Modulr.modularize(document);
+
+		}).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		
+		spacing += splitButton.outerWidth();
+		var mergeButton = $('<input/>').attr({
+			value : 'M',
+			class : 'moduleBtn'
+		}).button().click(function() {
+			if (!Modulr.mergeToParent(module)) {
+				return;
+			}
+			//remove the buttons associated with the original (now merged) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
 				button.css({
 					visibility : 'hidden'
 				});
 			}
-			//recall this function as there are now new modules
+			
+			//re-call this function as there are now new modules
 			Modulr.modularize(document);
-
+			
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -512,16 +574,37 @@ var Modulr = {
 		buttons.push(sizeDownButton);
 		buttons.push(isolateButton);
 		buttons.push(splitButton);
+		buttons.push(mergeButton);
 		/*****************************/
 
 		return buttons;
 	},
-
+	mergeToParent : function(module) {
+		if (module.parents().length < 2) {
+			alert("This module can't be merged");
+			return false;
+		}
+		var parent = module.parent();
+		// remove all children that are modules
+		parent.find('.module_Modulr').each(function() {
+			var child = $(this).children().eq(0);
+			child.unwrap();
+			
+		});
+		//if the parent is already a module, you're done
+		if (module.parent('.module_Modulr').length > 0) {
+			return;
+		}
+		console.log("adding parent:");
+		console.log(parent[0]);
+		
+		parent.wrap('<div class="module_Modulr" id="unset" />');
+		return true;
+	},
 	split : function(module) {
 		//unwrap the module
 		var child = module.children().eq(0);
 		if (child.children(this.SplitTags).length <= 0) {
-			alert("This module can't be split");
 			return false;
 		}
 		child.unwrap();
@@ -531,9 +614,33 @@ var Modulr = {
 		child.children(this.SplitTags).each(function() {
 			subModules.push($(this)[0]);
 		});
+		
 		console.log("submodules: " + subModules.length);
 		//process and wrap the children
 		subModules = Modularizer.processModules(subModules);
+		
+		if (subModules.length == 0) {
+			return false;
+		}
+		
+		var isValid = true;
+		//are any of the modules the parent? this can happen if a child doesn't have the right tag
+		for (var i = 0; i < subModules.length; i++) {
+			if (subModules[i] == child) {
+				isValid = false;
+				break;
+			}
+			//does the current module have any submodules as parents?
+			if (module.parents($(subModules[i])).length) {
+				isValid = false;
+				break;
+			}
+		}
+		
+		if (!isValid) {
+			return false;
+		}
+		
 		Modularizer.wrapModules(subModules);
 		return true;
 
@@ -588,19 +695,15 @@ var Modulr = {
 
 				},
 				mouseenter : function() {
-					module.css("outline", "green dotted 5px");
+					module.css("box-shadow", "0 0 10px #000");
+					//module.css("outline", "green dotted 5px");
 					
-/*
-						
-					$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
-						opacity : "0.8",
-					});
-*/
 
 				},
 				mouseleave : function() {
-					module.css("outline", "green dotted 0px");
-					//$('*').css("opacity", "1.0");
+					module.css("box-shadow", "0 0 0px #000");
+					//module.css("outline", "green dotted 0px");
+
 				}
 			});
 		});
