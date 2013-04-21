@@ -116,7 +116,8 @@ var Modularizer = {
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
-			module.wrap('<div class="module_Modulr" id="unset" />');
+                        // Changed id to include the number of the module
+			module.wrap('<div class="module_Modulr" id="Modulr_module_"' + i + ' />');
 		}
 	},
 	printArray : function(arr) {
@@ -344,6 +345,9 @@ var Modularizer = {
  * Output: UI customizability features added to these modules
  */
 var Modulr = {
+        // Sequence of customizations made by the user
+        Moves : [],
+                
 	//create and return the buttons
 	createButtons : function(module) {
 
@@ -484,6 +488,8 @@ var Modulr = {
 			value : 'S',
 			class : 'moduleBtn'
 		}).button().click(function() {
+                        this.Moves.push([module.attr('id').charAt(14), 's']);
+                        
 			console.log("fsdfsdfsdfsd");
 			if (!Modulr.split(module)) {
 				return;
@@ -607,13 +613,8 @@ var Modulr = {
 			class : 'saveBtn'
 		}).click(function() {
                     // Save the current page customization
-                    
-                    var wrappedModules = $('.module_Modulr');/*
-                    
-                    var moduleChildren = $();
-                    wrappedModules.each(function() {
-                        moduleChildren = moduleChildren.add($(this).children());
-                    });*/
+                    var CSS_TAGS = ['visibility', 'position', 'font-size', 'line-height'];
+                    var wrappedModules = $('.module_Modulr');
                     var storageName = 'Modulr_' + window.location;
                     var arr = [];
                     wrappedModules.each(function() {
@@ -627,11 +628,7 @@ var Modulr = {
                         }*/
                         arr.push(style.cssText);
                     });
-
                     
-                    
-                    
-
                     localStorage[storageName] = JSON.stringify(arr);
 		}).css({
 			position : 'fixed',
