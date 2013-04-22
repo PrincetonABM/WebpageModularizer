@@ -10,8 +10,8 @@ var Modularizer = {
 	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", 
 				"HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", 
 				"TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", 
-				"ADDRESS", "DD"],
-	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd",
+				"ADDRESS", "DD", "BLOCKQUOTE"],
+	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd, blockquote",
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "IFRAME"],
 	ExcludedString : "script, iframe",
@@ -167,6 +167,8 @@ var Modularizer = {
 				console.log(module);
 				module = parents.eq(0)[0];
 				console.log(module);
+				if (module.tagName == "BODY")
+					continue;
 				
 				for (var i  = 0; i < newModules.length;i++) {
 					var otherModule = $(newModules[i]);
@@ -197,6 +199,23 @@ var Modularizer = {
 				}
 				
 				newModules.push(module);
+				continue;
+			}
+		
+			var isValid = true;
+			for (var i = 0; i < newModules.length; i++) {
+				var otherModule = $(newModules[i]);
+
+				//check if the other module is a parent of the current module
+				if (otherModule.has($(module)).length > 0) {
+					isValid = false;
+					break;
+				}
+
+			}
+
+			if (!isValid) {
+				console.log("Module already has parent");
 				continue;
 			}
 
@@ -492,11 +511,15 @@ var Modulr = {
 
 			if (!isIsolated) {
 				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
-					opacity : "0.5",
+					opacity : "0.8",
+					"text-shadow": "0 0 20px #000",
+					color: "transparent",
 				});
 			} else {
 				$('*').css({
 					opacity : "1.0",
+					"text-shadow": "",
+					color: "",
 				});
 			}
 			isIsolated = !isIsolated;
@@ -693,6 +716,9 @@ var Modulr = {
 						spacing += button.outerWidth();
 					}
 
+				},
+				mouseover : function() {
+					module.css("box-shadow", "0 0 10px #000");
 				},
 				mouseenter : function() {
 					module.css("box-shadow", "0 0 10px #000");
