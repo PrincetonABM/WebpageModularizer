@@ -23,7 +23,7 @@ var Modularizer = {
 	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
 	MAX_DEPTH : 50,
 	currentModuleNumber : 0,
-	
+
 	//return the area of the single element
 	getArea : function(elem) {
 		return $(elem).height() * $(elem).width();
@@ -66,7 +66,10 @@ var Modularizer = {
 		var cur = "A";
 		var source = elementsA;
 		var target = elementsB;
-
+	
+	
+	
+		
 		do {
 			while (source.length > 0) {
 				var curElem = source.shift();
@@ -279,7 +282,7 @@ var Modulr = {
 		var closeButton = $('<input/>').attr({
 			value : 'X',
 			class : 'moduleBtn',
-			id: 'close'
+			id : 'close'
 		}).button().css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -304,12 +307,12 @@ var Modulr = {
 				closeButton.button("option", "label", "X");
 			}
 		});
-		
+
 		spacing += closeButton.outerWidth();
 		var dragButton = $('<input/>').attr({
 			value : 'D',
 			class : 'moduleBtn',
-			id: 'drag'
+			id : 'drag'
 		}).button().click(function() {
 			module.draggable({
 				snap : true
@@ -335,7 +338,7 @@ var Modulr = {
 		var sizeUpButton = $('<input/>').attr({
 			value : '^',
 			class : 'moduleBtn',
-			id: 'sizeup'
+			id : 'sizeup'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -361,7 +364,7 @@ var Modulr = {
 		var sizeDownButton = $('<input/>').attr({
 			value : 'v',
 			class : 'moduleBtn',
-			id: 'sizedown'
+			id : 'sizedown'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -382,7 +385,7 @@ var Modulr = {
 		var isolateButton = $('<input/>').attr({
 			value : 'I',
 			class : 'moduleBtn',
-			id: 'isolate'
+			id : 'isolate'
 		}).button().click(function() {
 
 			if (!isIsolated) {
@@ -391,7 +394,7 @@ var Modulr = {
 					"text-shadow" : "0 0 20px #000",
 					color : "transparent",
 				});
-				
+
 			} else {
 				$('*').css({
 					opacity : "1.0",
@@ -414,11 +417,11 @@ var Modulr = {
 		var splitButton = $('<input/>').attr({
 			value : 'S',
 			class : 'moduleBtn',
-			id: 'split'
+			id : 'split'
 		}).button().click(function() {
 
 			if (!Modulr.split(module)) {
-				alert("This module can't be split");
+				Modulr.notificationBad("This module can't be split");
 				return;
 			}
 
@@ -447,7 +450,7 @@ var Modulr = {
 		var mergeButton = $('<input/>').attr({
 			value : 'M',
 			class : 'moduleBtn',
-			id: 'merge'
+			id : 'merge'
 		}).button().click(function() {
 			if (!Modulr.mergeToParent(module)) {
 				return;
@@ -479,13 +482,12 @@ var Modulr = {
 		buttons.push(splitButton);
 		buttons.push(mergeButton);
 		/*****************************/
-		
-		
+
 		return buttons;
 	},
 	mergeToParent : function(module) {
 		if (module.parents().length < 2) {
-			alert("This module can't be merged");
+			Modulr.notificationBad("This module can't be merged");
 			return false;
 		}
 		var parent = module.parent();
@@ -618,34 +620,18 @@ var Modulr = {
 	},
 	// Save the current customization of the page
 	save : function() {
-		var saveButton = $('body').append('<input class="Modulr_save_button"></input>');
-		$('.Modulr_save_button').attr({
-			value : 'S',
-			class : 'saveBtn'
-		}).click(function() {
-			// Save the current page customization
-			var wrappedModules = $('.module_Modulr');
-			var storageName = 'Modulr_module_attributes_' + window.location;
-			var storageName2 = 'Modulr_module_splits_' + window.location;
-			var arr = [];
-			var length = wrappedModules.length;
-			wrappedModules.each(function() {
-				var style = window.getComputedStyle($(this)[0]);
-				arr[$(this).data("Module_number")] = style.cssText;
-			});
-
-			localStorage[storageName] = JSON.stringify(arr);
-			localStorage[storageName2] = JSON.stringify(Modulr.Moves);
-		}).css({
-			position : 'fixed',
-			left : '90%',
-			top : '20px',
-			'font-size' : '10px',
-			width : '35px',
-			height : '22px',
-			'border-radius' : '3px',
-			visibility : 'visible'
+		// Save the current page customization
+		var wrappedModules = $('.module_Modulr');
+		var storageName = 'Modulr_module_attributes_' + window.location;
+		var storageName2 = 'Modulr_module_splits_' + window.location;
+		var arr = [];
+		var length = wrappedModules.length;
+		wrappedModules.each(function() {
+			var style = window.getComputedStyle($(this)[0]);
+			arr[$(this).data("Module_number")] = style.cssText;
 		});
+		localStorage[storageName] = JSON.stringify(arr);
+		localStorage[storageName2] = JSON.stringify(Modulr.Moves);
 	},
 
 	// Load a saved customization
@@ -655,7 +641,8 @@ var Modulr = {
 		if (!( storageName in localStorage)) {
 			return false;
 		}
-		alert('Loading from Save');
+		
+		Modulr.notificationGood('Loading saved configuration.');
 		var attributes = JSON.parse(localStorage[storageName]);
 		var splitMoves = JSON.parse(localStorage[storageName2]);
 
@@ -674,16 +661,32 @@ var Modulr = {
 		$(":data(Module_number)").each(function() {
 			$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
 		});
+
+
 		return true;
 	},
-	addSideBar : function(doc) {
+	
+	//temporarily display a notificaton at the top of the page 
+	notificationGood : function(text) {
+		$('.notification_Modulr_good').css('visibility', 'visible');
+		$('.notification_Modulr_good').text(text);
+		$('.notification_Modulr_good').fadeIn().delay(3000).fadeOut();
+		$('.notification_Modulr_good').css("visiblity", "hidden");
+	},
+	
+	notificationBad : function(text) {
+		$('.notification_Modulr_bad').css('visibility', 'visible');
+		$('.notification_Modulr_bad').text(text);
+		$('.notification_Modulr_bad').fadeIn().delay(3000).fadeOut();
+		$('.notification_Modulr_bad').css("visiblity", "hidden");
+	},
+	
+	addSideBar : function() {
 		var body = $(document).find('body');
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
-		
+
 		var isHighlighted = false, modulesOpen = true;
-		
-		
 
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
@@ -698,7 +701,7 @@ var Modulr = {
 			value : 'Remove All Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
-			if (modulesOpen) {	
+			if (modulesOpen) {
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
 				//close all buttons
@@ -713,14 +716,33 @@ var Modulr = {
 				//show all modules
 				$('.module_Modulr').css('visibility', 'visible');
 				//change close button icon
-				$('#close.moduleBtn').button("option", "label", "X");	
+				$('#close.moduleBtn').button("option", "label", "X");
 			}
 			modulesOpen = !modulesOpen;
 		});
+
+		var saveModulesBtn = $('<input/>').attr({
+			value : 'Save Configuration',
+			class : 'Modulr_save_button sideBarBtn'
+		}).button().click(function() {
+			Modulr.notificationGood("Module configuration has been saved.");
+			Modulr.save();
+		});
 		
-		
+		var loadModulesBtn = $('<input/>').attr({
+			value : 'Load Configuration',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			if (Modulr.checkForLoad())
+				Modulr.notificationGood("Previous module configuration has been loaded.");
+			else
+				Modulr.notificationBad("No saved module configuration found.");
+				
+		});
 		sideBar.append(showModulesBtn);
 		sideBar.append(removeModulesBtn);
+		sideBar.append(saveModulesBtn);
+		sideBar.append(loadModulesBtn);
 
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
@@ -736,54 +758,55 @@ var Modulr = {
 		});
 
 	},
-	
+
 	highlightModules : function(highlighted) {
 		console.log("highlighting modules");
-		
+
 		if (!highlighted) {
 			$('.module_Modulr').css({
-				"outline": "green dashed 3px"
+				"outline" : "green dashed 3px"
 			});
 		} else {
 			$('.module_Modulr').css({
 				outline : ''
 			});
-			
+
 		}
-		
-		
-		
-/*
-		$('*').not($('.module_Modulr').parents()).not($('.module_Modulr').find('*')).not('.module_Modulr').css({
-			'z-index' : 10001
-			//'background-color': 'green'
-		});
-		
-		$('#overlay').fadeIn(300);*/
 
 	},
 	process : function(doc) {
+		
+		//add the notification divs
+		var body = $(document).find('body');
+		var notificationGood = $('<span class="notification_Modulr_good" />');
+		body.after(notificationGood);
+		var notificationBad = $('<span class="notification_Modulr_bad" />');
+		body.after(notificationBad);
+		notificationBad.css('visibility', 'hidden');
+		notificationGood.css('visibility', 'hidden');
+		
 		Modularizer.modularize(document);
 		console.log(document);
-		Modulr.modularize(document);
-		Modulr.checkForLoad();
+		if (!Modulr.checkForLoad())
+			Modulr.modularize(document);
+
 		/*
-		 for (var i = 0; i < modules.length; i++) {
+		for (var i = 0; i < modules.length; i++) {
 
-		 var current = modules[i];
-		 $(current).parents().each(function() {
-		 var currentParent = $(this).get(0);
-		 if ($.inArray(currentParent, modules) > -1) {
+		var current = modules[i];
+		$(current).parents().each(function() {
+		var currentParent = $(this).get(0);
+		if ($.inArray(currentParent, modules) > -1) {
 
-		 console.log("============================ parent found ===========================");
-		 //kick the parent
-		 modules.splice($.inArray(currentParent, modules), 1);
-		 }
-		 });
+		console.log("============================ parent found ===========================");
+		//kick the parent
+		modules.splice($.inArray(currentParent, modules), 1);
+		}
+		});
 
-		 }*/
-		Modulr.save();
-		Modulr.addSideBar(document);
+		}*/
+		//Modulr.save();
+		Modulr.addSideBar();
 
 	}
 };
