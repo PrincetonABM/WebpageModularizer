@@ -21,20 +21,48 @@
 	position: absolute;
 	width: 1px;
 }
+
 .module_Modulr {
 }
 
-.overlay-mask {
-	background: #222;
-    opacity: 1.0;
-    height: 100%;
-    left: 0;
-    position: fixed;
-    top: 0;
+.notification_Modulr_good {
+	position : absolute;
+	left : 0;
+	top : 0;
     width: 100%;
-    z-index: 99988;
-    display:none;
+    height: 25px;
+   	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#deefff), color-stop(100%,#98bede));
+    box-shadow: 0px 30px 40px rgba(0,0,0,.1);
+    -moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    z-index: 10005;
+    text-align: center;
+    border-bottom : solid blue 1px; 
+	font-style: normal;
+	font-family: 'Arial Narrow', Gadget, sans-serif;
+	font-weight: bold;
 }
+
+
+.notification_Modulr_bad {
+	position : absolute;
+	left : 0;
+	top : 0;
+    width: 100%;
+    height: 25px;
+   	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#febbbb), color-stop(45%,#fe9090), color-stop(100%,#ff5c5c));
+    box-shadow: 0px 30px 40px rgba(0,0,0,.1);
+    -moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+    z-index: 10005;
+    text-align: center;
+    border-bottom : solid blue 1px; 
+	font-style: normal;
+	font-family: 'Arial Narrow', Gadget, sans-serif;
+	font-weight: bold;
+}
+
+
 .sideBarBtn {
 	opacity: 1.0;
 	z-index: 9001;
@@ -45,8 +73,9 @@
     width: 175px;
     height: 800px;
     background-color: rgba(163,157,159,0.5);
-    border: 1px solid #29216d;
-    box-shadow: 0 0 10px #000;
+    box-shadow: 0px 30px 40px rgba(0,0,0,.1);
+    -moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
     z-index: 9000;
     
 }
