@@ -23,7 +23,7 @@ var Modularizer = {
 	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
 	MAX_DEPTH : 50,
 	currentModuleNumber : 0,
-
+	
 	//return the area of the single element
 	getArea : function(elem) {
 		return $(elem).height() * $(elem).width();
@@ -254,142 +254,6 @@ var Modularizer = {
 		}
 		return newModules;
 	},
-
-	/***** THE FUNCTIONS BELOW ARE CURRENTLY UNUSED IN THE IMPLEMENTATION **/
-
-	//does moduleB visually contain moduleA?
-	contains : function(moduleA, moduleB) {
-		jmoduleA = $(moduleA);
-		var x1 = jmoduleA.position().left;
-		var y1 = jmoduleA.position().top;
-		var x2 = x1 + jmoduleA.width();
-		var y2 = y1;
-		var x3 = x1;
-		var y3 = y1 + jmoduleA.height();
-		var x4 = x2;
-		var y4 = y3;
-
-		return this.isWithin(moduleB, x1, y1) && this.isWithin(moduleB, x2, y2) && this.isWithin(moduleB, x3, y3) && this.isWithin(moduleB, x4, y4)
-	},
-
-	//do these modules visually overlap?
-	collidesWith : function(moduleA, moduleB) {
-		jmoduleA = $(moduleA);
-		var x1 = jmoduleA.position().left;
-		var y1 = jmoduleA.position().top;
-		var x2 = x1 + jmoduleA.width();
-		var y2 = y1;
-		var x3 = x1;
-		var y3 = y1 + jmoduleA.height();
-		var x4 = x2;
-		var y4 = y3;
-
-		return this.isWithin(moduleB, x1, y1) || this.isWithin(moduleB, x2, y2) || this.isWithin(moduleB, x3, y3) || this.isWithin(moduleB, x4, y4)
-	},
-
-	// are the coordinates x and y located within the module?
-	isWithin : function(module, x, y) {
-		jmodule = $(module);
-		var x1 = jmodule.position().left;
-		var x2 = jmodule.position().left + jmodule.width();
-		var y1 = jmodule.position().top;
-		var y2 = jmodule.position().top + jmodule.height();
-		if (x1 <= x && x <= x2 && y1 <= y && y <= y2)
-			return true;
-		else
-			return false;
-	},
-
-	//are two modules close enough? it returns true if two modules seem to be structured similarly and are close together
-	/**
-	 * EX:
-	 *  [][]  these two modules are close enough
-	 *
-	 *
-	 * 	[]  as are these two
-	 *  []
-	 */
-	closeEnough : function(moduleA, moduleB) {
-		var tolerance = 2;
-		var positionA = $(moduleA).position();
-		var positionB = $(moduleB).position();
-		var heightA = $(moduleA).height();
-		var heightB = $(moduleB).height();
-		var widthA = $(moduleA).width();
-		var widthB = $(moduleB).width();
-		console.log("====================");
-		console.log("left: " + positionA.left + ", " + positionB.left);
-		console.log("top: " + positionA.top + ", " + positionB.top);
-		console.log("height: " + heightA + ", " + heightB);
-		console.log("width: " + widthA + ", " + widthB);
-		console.log("====================");
-		console.log("left positioning diff: " + Math.abs(positionA.left - positionB.left));
-
-		if (Math.abs(positionA.left - positionB.left) < tolerance && Math.abs(widthA - widthB) < tolerance) {
-			var below, above;
-
-			if (positionA.top < positionB.top) {
-				below = $(moduleA);
-				above = $(moduleB);
-			} else {
-				below = $(moduleB);
-				above = $(moduleA);
-			}
-
-			console.log("top poisitions: " + Math.abs(below.position().top + below.height() - above.position().top));
-			if (Math.abs(below.position().top + below.height() - above.position().top) < tolerance) {
-				console.log("top close enough");
-				console.log(moduleA);
-				console.log(moduleB);
-				alert("mergining verticaly");
-				return true;
-
-			}
-			return false;
-		}
-		console.log("top positioning diff: " + Math.abs(positionA.top - positionB.top));
-		if (Math.abs(positionA.top - positionB.top) < tolerance && Math.abs(heightA - heightB) < tolerance) {
-			var left, right;
-			console.log("fd");
-			if (positionA.left < positionB.left) {
-				left = $(moduleA);
-				right = $(moduleB);
-			} else {
-				left = $(moduleB);
-				right = $(moduleA);
-			}
-			console.log("f");
-			if (Math.abs(left.position().left + left.width() - right.position().left) < tolerance) {
-				console.log("left close enough");
-				console.log(moduleA);
-				console.log(moduleB);
-				alert("merging horizontally " + left.position().top);
-
-				return true;
-
-			}
-			return false;
-		}
-
-		return false;
-	},
-
-	//combines moduleA and moduleB into one jquery module
-	merge : function(moduleA, moduleB) {
-		var parentsA = $.makeArray($(moduleA).parents());
-		var parentsB = $.makeArray($(moduleB).parents());
-
-		for (var i = 0; i < parentsA.length; i++) {
-
-			if ($.inArray(parentsA[i], parentsB) > -1) {
-				if ($(parentsA[i]).parents().length < 2)
-					return null;
-				return parentsA[i];
-			}
-		}
-		//this can't happen
-		return null;
-	},
 };
 /**
  * Takes wrapped up modules and adds UI features to the modules to allow for customizability
@@ -405,7 +269,7 @@ var Modulr = {
 	createButtons : function(module) {
 
 		var buttons = new Array();
-		var openModule = true, isDraggable = false, isResizable = false, isIsolated = false;
+		var isDraggable = false, isResizable = false, isIsolated = false;
 		var fontChanged = false;
 		//initial font size (100%)
 		var fontSize = 100;
@@ -414,9 +278,17 @@ var Modulr = {
 		/******* create the buttons **********/
 		var closeButton = $('<input/>').attr({
 			value : 'X',
-			class : 'moduleBtn'
-		}).button().click(function() {
-			if (openModule) {
+			class : 'moduleBtn',
+			id: 'close'
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		}).click(function() {
+			if (module.css('visibility') == 'visible' || module.css("visibility").length == 0) {
 				module.css('visibility', 'hidden');
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] != closeButton)
@@ -427,23 +299,17 @@ var Modulr = {
 				for (var i = 0; i < buttons.length; i++) {
 					buttons[i].css('visibility', 'visible');
 				}
+				module.trigger('click');
 				module.css('visibility', 'visible');
 				closeButton.button("option", "label", "X");
 			}
-			openModule = !openModule;
-		}).css({
-			position : 'absolute',
-			left : module.position().left + spacing,
-			top : module.position().top,
-			'font-size' : '10px',
-			width : '2%',
-			visibility : 'hidden'
 		});
-
+		
 		spacing += closeButton.outerWidth();
 		var dragButton = $('<input/>').attr({
 			value : 'D',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'drag'
 		}).button().click(function() {
 			module.draggable({
 				snap : true
@@ -468,7 +334,8 @@ var Modulr = {
 
 		var sizeUpButton = $('<input/>').attr({
 			value : '^',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'sizeup'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -493,7 +360,8 @@ var Modulr = {
 		spacing += sizeUpButton.outerWidth();
 		var sizeDownButton = $('<input/>').attr({
 			value : 'v',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'sizedown'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -513,7 +381,8 @@ var Modulr = {
 		spacing += sizeDownButton.outerWidth();
 		var isolateButton = $('<input/>').attr({
 			value : 'I',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'isolate'
 		}).button().click(function() {
 
 			if (!isIsolated) {
@@ -522,6 +391,7 @@ var Modulr = {
 					"text-shadow" : "0 0 20px #000",
 					color : "transparent",
 				});
+				
 			} else {
 				$('*').css({
 					opacity : "1.0",
@@ -543,7 +413,8 @@ var Modulr = {
 		spacing += isolateButton.outerWidth();
 		var splitButton = $('<input/>').attr({
 			value : 'S',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'split'
 		}).button().click(function() {
 
 			if (!Modulr.split(module)) {
@@ -575,7 +446,8 @@ var Modulr = {
 		spacing += splitButton.outerWidth();
 		var mergeButton = $('<input/>').attr({
 			value : 'M',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			id: 'merge'
 		}).button().click(function() {
 			if (!Modulr.mergeToParent(module)) {
 				return;
@@ -607,7 +479,8 @@ var Modulr = {
 		buttons.push(splitButton);
 		buttons.push(mergeButton);
 		/*****************************/
-
+		
+		
 		return buttons;
 	},
 	mergeToParent : function(module) {
@@ -805,11 +678,54 @@ var Modulr = {
 	},
 	addSideBar : function(doc) {
 		var body = $(document).find('body');
-		var sideBar = $('<div class="side-bar"><a class="handle"></a><h3>Side bar shit yo</h3> </div>');
+		var sideBar = $('<div class="side-bar"></div>');
+		sideBar.append('<div class="handle" />');
+		
+		var isHighlighted = false, modulesOpen = true;
+		
+		
+
+		/** add the buttons **/
+		var showModulesBtn = $('<input/>').attr({
+			value : 'Highlight Modules',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			Modulr.highlightModules(isHighlighted);
+			isHighlighted = !isHighlighted;
+		});
+		
+		var removeModulesBtn = $('<input/>').attr({
+			value : 'Remove All Modules',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			if (modulesOpen) {	
+				//hide all modules
+				$('.module_Modulr').css('visibility', 'hidden');
+				//close all buttons
+				$('.moduleBtn').css('visibility', 'hidden');
+				//show only the close buttons
+				$('#close.moduleBtn').css('visibility', 'visible');
+				//change close button icon
+				$('#close.moduleBtn').button("option", "label", "!");
+			} else {
+				//hide all module buttons
+				$('.moduleBtn').css("visibility", "hidden");
+				//show all modules
+				$('.module_Modulr').css('visibility', 'visible');
+				//change close button icon
+				$('#close.moduleBtn').button("option", "label", "X");	
+			}
+			modulesOpen = !modulesOpen;
+		});
+		
+		
+		sideBar.append(showModulesBtn);
+		sideBar.append(removeModulesBtn);
+
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab
-			pathToTabImage : 'null', //path to the image for the tab (no image is used here at least for now..)
+			pathToTabImage : 'nothing', //path to the image for the tab (no image is used here at least for now..)
 			imageHeight : screen.height + 'px', //height of tab image *required*
 			imageWidth : '150px', //width of tab image *required*
 			tabLocation : 'left', //side of screen where tab lives, top, right, bottom, or left
@@ -818,13 +734,39 @@ var Modulr = {
 			topPos : '0px', //position from the top
 			fixedPosition : true //options: true makes it stick(fixed position) on scroll
 		});
+
+	},
+	
+	highlightModules : function(highlighted) {
+		console.log("highlighting modules");
+		
+		if (!highlighted) {
+			$('.module_Modulr').css({
+				"outline": "green dashed 3px"
+			});
+		} else {
+			$('.module_Modulr').css({
+				outline : ''
+			});
+			
+		}
+		
+		
+		
+/*
+		$('*').not($('.module_Modulr').parents()).not($('.module_Modulr').find('*')).not('.module_Modulr').css({
+			'z-index' : 10001
+			//'background-color': 'green'
+		});
+		
+		$('#overlay').fadeIn(300);*/
+
 	},
 	process : function(doc) {
 		Modularizer.modularize(document);
 		console.log(document);
 		Modulr.modularize(document);
 		Modulr.checkForLoad();
-		Modulr.addSideBar(document);
 		/*
 		 for (var i = 0; i < modules.length; i++) {
 
@@ -841,6 +783,8 @@ var Modulr = {
 
 		 }*/
 		Modulr.save();
+		Modulr.addSideBar(document);
+
 	}
 };
 

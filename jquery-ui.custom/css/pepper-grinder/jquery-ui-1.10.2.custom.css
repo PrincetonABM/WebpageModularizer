@@ -24,13 +24,31 @@
 .module_Modulr {
 }
 
+.overlay-mask {
+	background: #222;
+    opacity: 1.0;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99988;
+    display:none;
+}
+.sideBarBtn {
+	opacity: 1.0;
+	z-index: 9001;
+	font-size: .8em !important;
+}
 .side-bar {
 	padding: 20px;
-    width: 150px;
+    width: 175px;
     height: 800px;
-    background: #ccc;
+    background-color: rgba(163,157,159,0.5);
     border: 1px solid #29216d;
     box-shadow: 0 0 10px #000;
+    z-index: 9000;
+    
 }
 .ui-helper-reset {
 	margin: 0;
