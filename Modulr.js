@@ -7,10 +7,7 @@ var Cleaner = {
 
 var Modularizer = {
 	// Tags that should be divided by
-	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", 
-				"HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", 
-				"TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", 
-				"ADDRESS", "DD", "BLOCKQUOTE"],
+	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", "ADDRESS", "DD", "BLOCKQUOTE"],
 	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd, blockquote",
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "IFRAME"],
@@ -25,7 +22,7 @@ var Modularizer = {
 	MIN_TEXT_LENGTH : 10,
 	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
 	MAX_DEPTH : 50,
-        currentModuleNumber : 0,
+	currentModuleNumber : 0,
 
 	//return the area of the single element
 	getArea : function(elem) {
@@ -112,20 +109,20 @@ var Modularizer = {
 	//wrap the modules in a div tag with a specific class
 	wrapModules : function(modules) {
 		for (var i = 0; i < modules.length; i++) {
-                    // Added to ensure numbering from 0-(i-1)
+			// Added to ensure numbering from 0-(i-1)
 			if (modules[i].tagName == 'BODY' || modules[i].tagName == 'HTML') {
-                            modules = modules.not($(modules[i]));
-                            i--;
-                            continue;
-                        }	
+				modules = modules.not($(modules[i]));
+				i--;
+				continue;
+			}
 
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
-                        // Changed id to include the number of the module
+			// Changed id to include the number of the module
 			module.wrap('<div class="module_Modulr" id = "unset" />');
-                        module.parent().data('Module_number', Modularizer.currentModuleNumber);
-                        Modularizer.currentModuleNumber++;
+			module.parent().data('Module_number', Modularizer.currentModuleNumber);
+			Modularizer.currentModuleNumber++;
 		}
 	},
 	printArray : function(arr) {
@@ -139,7 +136,7 @@ var Modularizer = {
 		var newModules = new Array();
 		while (modules.length > 0) {
 			var module = modules.shift();
-			if ($(module).is('.moduleBtn')) { 
+			if ($(module).is('.moduleBtn')) {
 				continue;
 			}
 			console.log("processing this module:");
@@ -154,7 +151,7 @@ var Modularizer = {
 				$(module).find('*').each(function() {
 					if (!tooSmall)
 						return;
-						
+
 					if (Modularizer.getArea(this) > Modularizer.MIN_AREA)
 						tooSmall = false;
 
@@ -177,10 +174,10 @@ var Modularizer = {
 				console.log(module);
 				if (module.tagName == "BODY")
 					continue;
-				
-				for (var i  = 0; i < newModules.length;i++) {
+
+				for (var i = 0; i < newModules.length; i++) {
 					var otherModule = $(newModules[i]);
-					
+
 					//check if the other module is a child of the current module
 					if ($(module).has(otherModule).length > 0) {
 						console.log("removing the following module")
@@ -189,27 +186,27 @@ var Modularizer = {
 						i--;
 					}
 				}
-				
+
 				var isValid = true;
-				for (var i  = 0; i < newModules.length;i++) {
+				for (var i = 0; i < newModules.length; i++) {
 					var otherModule = $(newModules[i]);
-					
+
 					//check if the other module is a parent of the current module
 					if (otherModule.has($(module)).length > 0) {
 						isValid = false;
 						break;
 					}
-					
+
 				}
-				
+
 				if (!isValid) {
 					continue;
 				}
-				
+
 				newModules.push(module);
 				continue;
 			}
-		
+
 			var isValid = true;
 			for (var i = 0; i < newModules.length; i++) {
 				var otherModule = $(newModules[i]);
@@ -244,8 +241,7 @@ var Modularizer = {
 			// or if the children are within 0.1 of the original parent area
 			//add them for processing
 			if (textLength > 0 && $(module).children().length > 0) {
-				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) 
-					&& (this.getArea(module) < this.getTotalArea($(module).children().toArray()) || Math.abs(this.getArea(module) - this.getTotalArea($(module).children().toArray())) < 0.1 * this.getArea(module))) {
+				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) && (this.getArea(module) < this.getTotalArea($(module).children().toArray()) || Math.abs(this.getArea(module) - this.getTotalArea($(module).children().toArray())) < 0.1 * this.getArea(module))) {
 					console.log("adding the children");
 					$(module).children(this.SplitString).each(function() {
 						modules.push($(this)[0]);
@@ -402,9 +398,9 @@ var Modularizer = {
  * Output: UI customizability features added to these modules
  */
 var Modulr = {
-        // Sequence of customizations made by the user
-        Moves : [],
-                
+	// Sequence of customizations made by the user
+	Moves : [],
+
 	//create and return the buttons
 	createButtons : function(module) {
 
@@ -523,14 +519,14 @@ var Modulr = {
 			if (!isIsolated) {
 				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
 					opacity : "0.8",
-					"text-shadow": "0 0 20px #000",
-					color: "transparent",
+					"text-shadow" : "0 0 20px #000",
+					color : "transparent",
 				});
 			} else {
 				$('*').css({
 					opacity : "1.0",
-					"text-shadow": "",
-					color: "",
+					"text-shadow" : "",
+					color : "",
 				});
 			}
 			isIsolated = !isIsolated;
@@ -549,20 +545,20 @@ var Modulr = {
 			value : 'S',
 			class : 'moduleBtn'
 		}).button().click(function() {
-			
+
 			if (!Modulr.split(module)) {
 				alert("This module can't be split");
 				return;
 			}
-                        
+
 			//remove the buttons associated with the original (now split) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
 				button.remove();
 				/*
-				button.css({
-									visibility : 'hidden'
-								});*/
+				 button.css({
+				 visibility : 'hidden'
+				 });*/
 			}
 			//recall this function as there are now new modules
 			Modulr.modularize(document);
@@ -575,7 +571,7 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
-		
+
 		spacing += splitButton.outerWidth();
 		var mergeButton = $('<input/>').attr({
 			value : 'M',
@@ -591,10 +587,10 @@ var Modulr = {
 					visibility : 'hidden'
 				});
 			}
-			
+
 			//re-call this function as there are now new modules
 			Modulr.modularize(document);
-			
+
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -624,7 +620,7 @@ var Modulr = {
 		parent.find('.module_Modulr').each(function() {
 			var child = $(this).children().eq(0);
 			child.unwrap();
-			
+
 		});
 		//if the parent is already a module, you're done
 		if (module.parent('.module_Modulr').length > 0) {
@@ -632,7 +628,7 @@ var Modulr = {
 		}
 		console.log("adding parent:");
 		console.log(parent[0]);
-		
+
 		parent.wrap('<div class="module_Modulr" id="unset" />');
 		return true;
 	},
@@ -642,8 +638,8 @@ var Modulr = {
 		if (child.children(this.SplitTags).length <= 0) {
 			return false;
 		}
-                Modulr.Moves.push(parseInt(module.data("Module_number")));
-                Modulr.Moves.push('s');
+		Modulr.Moves.push(parseInt(module.data("Module_number")));
+		Modulr.Moves.push('s');
 		child.unwrap();
 		var subModules = new Array();
 
@@ -651,15 +647,15 @@ var Modulr = {
 		child.children(this.SplitTags).each(function() {
 			subModules.push($(this)[0]);
 		});
-		
+
 		console.log("submodules: " + subModules.length);
 		//process and wrap the children
 		subModules = Modularizer.processModules(subModules);
-		
+
 		if (subModules.length == 0) {
 			return false;
 		}
-		
+
 		var isValid = true;
 		//are any of the modules the parent? this can happen if a child doesn't have the right tag
 		for (var i = 0; i < subModules.length; i++) {
@@ -673,11 +669,11 @@ var Modulr = {
 				break;
 			}
 		}
-		
+
 		if (!isValid) {
 			return false;
 		}
-		
+
 		Modularizer.wrapModules(subModules);
 		return true;
 
@@ -737,7 +733,6 @@ var Modulr = {
 				mouseenter : function() {
 					module.css("box-shadow", "0 0 10px #000");
 					//module.css("outline", "green dotted 5px");
-					
 
 				},
 				mouseleave : function() {
@@ -755,19 +750,19 @@ var Modulr = {
 			value : 'S',
 			class : 'saveBtn'
 		}).click(function() {
-                    // Save the current page customization
-                    var wrappedModules = $('.module_Modulr');
-                    var storageName = 'Modulr_module_attributes_' + window.location;
-                    var storageName2 = 'Modulr_module_splits_' + window.location;
-                    var arr = [];
-                    var length = wrappedModules.length;
-                    wrappedModules.each( function() {
-                        var style = window.getComputedStyle($(this)[0]);
-                        arr[$(this).data("Module_number")] = style.cssText;
-                    });
-                    
-                    localStorage[storageName] = JSON.stringify(arr);
-                    localStorage[storageName2] = JSON.stringify(Modulr.Moves);
+			// Save the current page customization
+			var wrappedModules = $('.module_Modulr');
+			var storageName = 'Modulr_module_attributes_' + window.location;
+			var storageName2 = 'Modulr_module_splits_' + window.location;
+			var arr = [];
+			var length = wrappedModules.length;
+			wrappedModules.each(function() {
+				var style = window.getComputedStyle($(this)[0]);
+				arr[$(this).data("Module_number")] = style.cssText;
+			});
+
+			localStorage[storageName] = JSON.stringify(arr);
+			localStorage[storageName2] = JSON.stringify(Modulr.Moves);
 		}).css({
 			position : 'fixed',
 			left : '90%',
@@ -778,41 +773,58 @@ var Modulr = {
 			'border-radius' : '3px',
 			visibility : 'visible'
 		});
-        },
-                
-        // Load a saved customization        
-        checkForLoad: function() {
-            var storageName = 'Modulr_module_attributes_' + window.location;
-            var storageName2 = 'Modulr_module_splits_' + window.location;
-            if(!(storageName in localStorage)){
-                return false;
-            }
-            alert('Loading from Save');
-            var attributes = JSON.parse(localStorage[storageName]);
-            var splitMoves = JSON.parse(localStorage[storageName2]);
-            
-            for (var i = 0; i < splitMoves.length / 2; i++) {
-               if (splitMoves[i * 2 + 1] === 's') {
-                    $(":data(Module_number)").each(function() {
-                        if ($(this).data("Module_number") === splitMoves[i * 2]) {
-                            Modulr.split($(this));
-                            Modulr.modularize(document);
-                        }
-                    });
-                    
-               }
-            }
-            // Find the modules from the array of html contents from the save
-            $(":data(Module_number)").each(function() {
-                $(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
-            });
-            return true;
-        },
+	},
+
+	// Load a saved customization
+	checkForLoad : function() {
+		var storageName = 'Modulr_module_attributes_' + window.location;
+		var storageName2 = 'Modulr_module_splits_' + window.location;
+		if (!( storageName in localStorage)) {
+			return false;
+		}
+		alert('Loading from Save');
+		var attributes = JSON.parse(localStorage[storageName]);
+		var splitMoves = JSON.parse(localStorage[storageName2]);
+
+		for (var i = 0; i < splitMoves.length / 2; i++) {
+			if (splitMoves[i * 2 + 1] === 's') {
+				$(":data(Module_number)").each(function() {
+					if ($(this).data("Module_number") === splitMoves[i * 2]) {
+						Modulr.split($(this));
+						Modulr.modularize(document);
+					}
+				});
+
+			}
+		}
+		// Find the modules from the array of html contents from the save
+		$(":data(Module_number)").each(function() {
+			$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
+		});
+		return true;
+	},
+	addSideBar : function(doc) {
+		var body = $(document).find('body');
+		var sideBar = $('<div class="side-bar"><a class="handle"></a><h3>Side bar shit yo</h3> </div>');
+		body.after(sideBar);
+		$('.side-bar').tabSlideOut({
+			tabHandle : '.handle', //class of the element that will be your tab
+			pathToTabImage : 'null', //path to the image for the tab (no image is used here at least for now..)
+			imageHeight : screen.height + 'px', //height of tab image *required*
+			imageWidth : '150px', //width of tab image *required*
+			tabLocation : 'left', //side of screen where tab lives, top, right, bottom, or left
+			speed : 300, //speed of animation
+			action : 'hover', //options: 'click' or 'hover', action to trigger animation
+			topPos : '0px', //position from the top
+			fixedPosition : true //options: true makes it stick(fixed position) on scroll
+		});
+	},
 	process : function(doc) {
-                Modularizer.modularize(document);
-                console.log(document);
+		Modularizer.modularize(document);
+		console.log(document);
 		Modulr.modularize(document);
-                Modulr.checkForLoad();
+		Modulr.checkForLoad();
+		Modulr.addSideBar(document);
 		/*
 		 for (var i = 0; i < modules.length; i++) {
 
@@ -828,7 +840,7 @@ var Modulr = {
 		 });
 
 		 }*/
-                Modulr.save();
+		Modulr.save();
 	}
 };
 

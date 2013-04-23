@@ -21,6 +21,17 @@
 	position: absolute;
 	width: 1px;
 }
+.module_Modulr {
+}
+
+.side-bar {
+	padding: 20px;
+    width: 150px;
+    height: 800px;
+    background: #ccc;
+    border: 1px solid #29216d;
+    box-shadow: 0 0 10px #000;
+}
 .ui-helper-reset {
 	margin: 0;
 	padding: 0;
