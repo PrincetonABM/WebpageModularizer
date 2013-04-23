@@ -24,6 +24,7 @@ var Modularizer = {
 	MIN_TEXT_LENGTH : 10,
 	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
 	MAX_DEPTH : 50,
+        currentModuleNumber : 0,
 
 	//return the area of the single element
 	getArea : function(elem) {
@@ -110,14 +111,20 @@ var Modularizer = {
 	//wrap the modules in a div tag with a specific class
 	wrapModules : function(modules) {
 		for (var i = 0; i < modules.length; i++) {
-			if (modules[i].tagName == 'BODY' || modules[i].tagName == 'HTML')
-				continue;
+                    // Added to ensure numbering from 0-(i-1)
+			if (modules[i].tagName == 'BODY' || modules[i].tagName == 'HTML') {
+                            modules = modules.not($(modules[i]));
+                            i--;
+                            continue;
+                        }	
 
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
                         // Changed id to include the number of the module
-			module.wrap('<div class="module_Modulr" id="Modulr_module_"' + i + ' />');
+			module.wrap('<div class="module_Modulr" id = "unset" />');
+                        module.parent().data('Module_number', Modularizer.currentModuleNumber);
+                        Modularizer.currentModuleNumber++;
 		}
 	},
 	printArray : function(arr) {
@@ -488,12 +495,11 @@ var Modulr = {
 			value : 'S',
 			class : 'moduleBtn'
 		}).button().click(function() {
-                        this.Moves.push([module.attr('id').charAt(14), 's']);
-                        
 			console.log("fsdfsdfsdfsd");
 			if (!Modulr.split(module)) {
 				return;
 			}
+                        
 			//remove the buttons associated with the original (now split) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
@@ -530,6 +536,8 @@ var Modulr = {
 			alert("This module can't be split");
 			return false;
 		}
+                Modulr.Moves.push(parseInt(module.data("Module_number")));
+                Modulr.Moves.push('s');
 		child.unwrap();
 		var subModules = new Array();
 
@@ -619,23 +627,18 @@ var Modulr = {
 			class : 'saveBtn'
 		}).click(function() {
                     // Save the current page customization
-                    var CSS_TAGS = ['visibility', 'position', 'font-size', 'line-height'];
                     var wrappedModules = $('.module_Modulr');
-                    var storageName = 'Modulr_' + window.location;
+                    var storageName = 'Modulr_module_attributes_' + window.location;
+                    var storageName2 = 'Modulr_module_splits_' + window.location;
                     var arr = [];
-                    wrappedModules.each(function() {
-                        arr.push($(this).html());
-                        var style = window.getComputedStyle(this);
-                        /*var returns = {};
-                        for(var i = 0, l = style.length; i < l; i++){
-                            var prop = style[i];
-                            var val = style.getPropertyValue(prop);
-                            returns[prop] = val;
-                        }*/
-                        arr.push(style.cssText);
+                    var length = wrappedModules.length;
+                    wrappedModules.each( function() {
+                        var style = window.getComputedStyle($(this)[0]);
+                        arr[$(this).data("Module_number")] = style.cssText;
                     });
                     
                     localStorage[storageName] = JSON.stringify(arr);
+                    localStorage[storageName2] = JSON.stringify(Modulr.Moves);
 		}).css({
 			position : 'fixed',
 			left : '90%',
@@ -650,35 +653,37 @@ var Modulr = {
                 
         // Load a saved customization        
         checkForLoad: function() {
-            var storageName = 'Modulr_' + window.location;
+            var storageName = 'Modulr_module_attributes_' + window.location;
+            var storageName2 = 'Modulr_module_splits_' + window.location;
             if(!(storageName in localStorage)){
                 return false;
             }
             alert('Loading from Save');
-            var loadedModules = JSON.parse(localStorage[storageName]);
-            var modules = $();
-
-            // Find the modules from the array of html contents from the save
-            var attributes = [];
-            for (var i = 0; i < loadedModules.length / 2; i++){
-                $('*').each(function() {
-                    if ($(this)[0].outerHTML === loadedModules[2 * i])
-                        modules = modules.add($(this));
-                });
-                attributes.push(loadedModules[2 * i + 1]);
+            var attributes = JSON.parse(localStorage[storageName]);
+            var splitMoves = JSON.parse(localStorage[storageName2]);
+            
+            for (var i = 0; i < splitMoves.length / 2; i++) {
+               if (splitMoves[i * 2 + 1] === 's') {
+                    $(":data(Module_number)").each(function() {
+                        if ($(this).data("Module_number") === splitMoves[i * 2]) {
+                            Modulr.split($(this));
+                            Modulr.modularize(document);
+                        }
+                    });
+                    
+               }
             }
-            for (var i = 0; i < attributes.length; i++)
-                console.log('ATTRIBUTES[' + i + ']\n' + attributes[i]);
-            Modularizer.wrapModules(modules);
-            modules.each(function() {
-                //$(this).parent()[0].setAttribute("style", attributes[i]);
+            // Find the modules from the array of html contents from the save
+            $(":data(Module_number)").each(function() {
+                $(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
             });
             return true;
         },
 	process : function(doc) {
-                if (!Modulr.checkForLoad())
-                    Modularizer.modularize(document);
-
+                Modularizer.modularize(document);
+                console.log(document);
+		Modulr.modularize(document);
+                Modulr.checkForLoad();
 		/*
 		 for (var i = 0; i < modules.length; i++) {
 
@@ -694,9 +699,6 @@ var Modulr = {
 		 });
 
 		 }*/
-
-		console.log(document);
-		Modulr.modularize(document);
                 Modulr.save();
 	}
 };
