@@ -66,10 +66,7 @@ var Modularizer = {
 		var cur = "A";
 		var source = elementsA;
 		var target = elementsB;
-	
-	
-	
-		
+
 		do {
 			while (source.length > 0) {
 				var curElem = source.shift();
@@ -280,7 +277,7 @@ var Modulr = {
 
 		/******* create the buttons **********/
 		var closeButton = $('<input/>').attr({
-			value : 'X',
+			value : "X",
 			class : 'moduleBtn',
 			id : 'close'
 		}).button().css({
@@ -641,7 +638,7 @@ var Modulr = {
 		if (!( storageName in localStorage)) {
 			return false;
 		}
-		
+
 		Modulr.notificationGood('Loading saved configuration.');
 		var attributes = JSON.parse(localStorage[storageName]);
 		var splitMoves = JSON.parse(localStorage[storageName2]);
@@ -662,25 +659,24 @@ var Modulr = {
 			$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
 		});
 
-
 		return true;
 	},
-	
-	//temporarily display a notificaton at the top of the page 
+
+	//temporarily display a notificaton at the top of the page
 	notificationGood : function(text) {
 		$('.notification_Modulr_good').css('visibility', 'visible');
 		$('.notification_Modulr_good').text(text);
 		$('.notification_Modulr_good').fadeIn().delay(3000).fadeOut();
 		$('.notification_Modulr_good').css("visiblity", "hidden");
 	},
-	
+
 	notificationBad : function(text) {
 		$('.notification_Modulr_bad').css('visibility', 'visible');
 		$('.notification_Modulr_bad').text(text);
 		$('.notification_Modulr_bad').fadeIn().delay(3000).fadeOut();
 		$('.notification_Modulr_bad').css("visiblity", "hidden");
 	},
-	
+
 	addSideBar : function() {
 		var body = $(document).find('body');
 		var sideBar = $('<div class="side-bar"></div>');
@@ -693,15 +689,19 @@ var Modulr = {
 			value : 'Highlight Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
+
 			Modulr.highlightModules(isHighlighted);
 			isHighlighted = !isHighlighted;
+		}).css({
+			width : '125px'
 		});
-		
+
 		var removeModulesBtn = $('<input/>').attr({
 			value : 'Remove All Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			if (modulesOpen) {
+				Modulr.notificationGood($('.module_Modulr').length + " modules removed.");
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
 				//close all buttons
@@ -719,6 +719,8 @@ var Modulr = {
 				$('#close.moduleBtn').button("option", "label", "X");
 			}
 			modulesOpen = !modulesOpen;
+		}).css({
+			width : '125px'
 		});
 
 		var saveModulesBtn = $('<input/>').attr({
@@ -727,8 +729,10 @@ var Modulr = {
 		}).button().click(function() {
 			Modulr.notificationGood("Module configuration has been saved.");
 			Modulr.save();
+		}).css({
+			width : '125px'
 		});
-		
+
 		var loadModulesBtn = $('<input/>').attr({
 			value : 'Load Configuration',
 			class : 'sideBarBtn'
@@ -737,8 +741,11 @@ var Modulr = {
 				Modulr.notificationGood("Previous module configuration has been loaded.");
 			else
 				Modulr.notificationBad("No saved module configuration found.");
-				
+
+		}).css({
+			width : '125px'
 		});
+
 		sideBar.append(showModulesBtn);
 		sideBar.append(removeModulesBtn);
 		sideBar.append(saveModulesBtn);
@@ -761,10 +768,10 @@ var Modulr = {
 
 	highlightModules : function(highlighted) {
 		console.log("highlighting modules");
-
 		if (!highlighted) {
+			Modulr.notificationGood($('.module_Modulr').length + " modules highlighted.");
 			$('.module_Modulr').css({
-				"outline" : "green dashed 3px"
+				"outline" : "blue dashed 3px"
 			});
 		} else {
 			$('.module_Modulr').css({
@@ -772,10 +779,8 @@ var Modulr = {
 			});
 
 		}
-
 	},
 	process : function(doc) {
-		
 		//add the notification divs
 		var body = $(document).find('body');
 		var notificationGood = $('<span class="notification_Modulr_good" />');
@@ -784,28 +789,12 @@ var Modulr = {
 		body.after(notificationBad);
 		notificationBad.css('visibility', 'hidden');
 		notificationGood.css('visibility', 'hidden');
-		
+
 		Modularizer.modularize(document);
 		console.log(document);
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
 
-		/*
-		for (var i = 0; i < modules.length; i++) {
-
-		var current = modules[i];
-		$(current).parents().each(function() {
-		var currentParent = $(this).get(0);
-		if ($.inArray(currentParent, modules) > -1) {
-
-		console.log("============================ parent found ===========================");
-		//kick the parent
-		modules.splice($.inArray(currentParent, modules), 1);
-		}
-		});
-
-		}*/
-		//Modulr.save();
 		Modulr.addSideBar();
 
 	}
