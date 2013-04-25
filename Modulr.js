@@ -460,7 +460,7 @@ var Modulr = {
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
 
-		var isHighlighted = false, modulesOpen = true;
+		var isHighlighted = false, modulesOpen = true, modulesDisabled = false;
 
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
@@ -468,13 +468,19 @@ var Modulr = {
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			Modulr.highlightModules(isHighlighted);
+			if (isHighlighted) {
+				showModulesBtn.button("option", "label", "Highlight Modules");
+				
+			} else {
+				showModulesBtn.button("option", "label", "Remove Highlights");
+			}
 			isHighlighted = !isHighlighted;
 		}).css({
 			width : '125px'
 		});
 
 		var removeModulesBtn = $('<input/>').attr({
-			value : 'Remove All Modules',
+			value : 'Remove all Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			if (modulesOpen) {
@@ -487,6 +493,7 @@ var Modulr = {
 				$('#close.moduleBtn').css('visibility', 'visible');
 				//change close button icon
 				$('#close.moduleBtn').button("option", "label", "!");
+				removeModulesBtn.button("option", "label", "Return all Modules");
 			} else {
 				//hide all module buttons
 				$('.moduleBtn').css("visibility", "hidden");
@@ -494,6 +501,7 @@ var Modulr = {
 				$('.module_Modulr').css('visibility', 'visible');
 				//change close button icon
 				$('#close.moduleBtn').button("option", "label", "X");
+				removeModulesBtn.button("option", "label", "Remove all Modules");
 			}
 			modulesOpen = !modulesOpen;
 		}).css({
@@ -523,6 +531,27 @@ var Modulr = {
 			width : '125px'
 		});
 
+		var disableModulesBtn = $('<input/>').attr({
+			value : 'Disable all Modules',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			if (!modulesDisabled) {
+				//close all buttons
+				$('.moduleBtn').css('visibility', 'hidden');
+				//detach event handlers
+				$('.module_Modulr').off();
+				disableModulesBtn.button("option", "label", "Enable all Modules");
+			} else {
+				/** insert code to bring back event handlers **/
+				
+				disableModulesBtn.button("option", "label", "Disable all Modules");
+			}
+			
+			
+			modulesDisabled = !modulesDisabled;
+		}).css({
+			width : '125px'
+		});
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
 			class : 'sideBarBtn'
@@ -536,6 +565,7 @@ var Modulr = {
 		sideBar.append(removeModulesBtn);
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
+		sideBar.append(disableModulesBtn);
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
