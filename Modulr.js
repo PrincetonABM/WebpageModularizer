@@ -5,6 +5,11 @@
  * Output: UI customizability features added to these modules
  */
 var Modulr = {
+
+	//this variable can be changed later. i only have this to resolve the problem of limited function scope
+	//was the load request successful?
+	loadSuccess : true,
+	processing : true,
 	// Sequence of customizations made by the user
 	Moves : [],
 
@@ -133,12 +138,13 @@ var Modulr = {
 		});
 
 		spacing += closeButton.outerWidth();
-		
+
 		var dragButton = $('<input/>').attr({
 			value : 'D',
 			class : 'moduleBtn',
 			id : 'drag'
 		}).button().click(function() {
+
 			module.draggable({
 				snap : true
 			});
@@ -384,45 +390,53 @@ var Modulr = {
 	save : function() {
 		// Save the current page customization
 		var wrappedModules = $('.module_Modulr');
-		var storageName = 'Modulr_module_attributes_' + window.location;
-		var storageName2 = 'Modulr_module_splits_' + window.location;
 		var arr = [];
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
 			arr[$(this).data("Module_number")] = style.cssText;
 		});
-		localStorage[storageName] = JSON.stringify(arr);
-		localStorage[storageName2] = JSON.stringify(Modulr.Moves);
+
+		chrome.runtime.sendMessage({
+			command : "save",
+			attributes : JSON.stringify(arr),
+			split : JSON.stringify(Modulr.Moves)
+		}, function(response) {
+			return;
+		});
 	},
 
 	// Load a saved customization
 	checkForLoad : function() {
-		var storageName = 'Modulr_module_attributes_' + window.location;
-		var storageName2 = 'Modulr_module_splits_' + window.location;
-		if (!( storageName in localStorage)) {
-			return false;
-		}
-
-		Modulr.notificationGood('Loading saved configuration.');
-		var attributes = JSON.parse(localStorage[storageName]);
-		var splitMoves = JSON.parse(localStorage[storageName2]);
-
-		for (var i = 0; i < splitMoves.length / 2; i++) {
-			if (splitMoves[i * 2 + 1] === 's') {
-				$(":data(Module_number)").each(function() {
-					if ($(this).data("Module_number") === splitMoves[i * 2]) {
-						Modulr.split($(this));
-						Modulr.modularize(document);
-					}
-				});
+		chrome.runtime.sendMessage({
+			command : "load"
+		}, function(response) {
+			console.log("receiving message");
+			Modulr.success = response.success;
+			console.log(Modulr.success);
+			if (!Modulr.success) {
+				return;
 			}
-		}
-		// Find the modules from the array of html contents from the save
-		$(":data(Module_number)").each(function() {
-			$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
-		});
+			Modulr.notificationGood('Loading saved configuration.');
+			var attributes = JSON.parse(response.attributes);
+			var splitMoves = JSON.parse(response.split);
+			for (var i = 0; i < splitMoves.length / 2; i++) {
+				if (splitMoves[i * 2 + 1] === 's') {
+					$(":data(Module_number)").each(function() {
+						if ($(this).data("Module_number") === splitMoves[i * 2]) {
+							Modulr.split($(this));
+							Modulr.modularize(document);
+						}
+					});
 
-		return true;
+				}
+			}
+			// Find the modules from the array of html contents from the save
+			$(":data(Module_number)").each(function() {
+				$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
+			});
+
+		});
+		return Modulr.success;
 	},
 
 	//temporarily display a notificaton at the top of the page
@@ -452,7 +466,6 @@ var Modulr = {
 			value : 'Highlight Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
-
 			Modulr.highlightModules(isHighlighted);
 			isHighlighted = !isHighlighted;
 		}).css({
@@ -509,11 +522,20 @@ var Modulr = {
 			width : '125px'
 		});
 
+		var openOptionsBtn = $('<input/>').attr({
+			value : 'Options',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			window.open(chrome.extension.getURL('options.html'));
+		}).css({
+			width : '125px'
+		});
+
 		sideBar.append(showModulesBtn);
 		sideBar.append(removeModulesBtn);
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
-
+		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab

@@ -254,14 +254,14 @@
 	cursor: default;
 }
 .ui-button {
-	display: inline-block;
+	display: inline-block !important;
 	position: relative;
 	padding: 0;
-	line-height: normal;
-	margin-right: .1em;
-	cursor: pointer;
-	vertical-align: middle;
-	text-align: center;
+	line-height: normal !important;
+	margin-right: .1em !important;
+	cursor: pointer !important;
+	vertical-align: middle !important;
+	text-align: center !important;
 	overflow: visible; /* removes extra width in IE */
 }
 .ui-button,
@@ -288,8 +288,8 @@ button.ui-button-icons-only {
 
 /* button text element */
 .ui-button .ui-button-text {
-	display: block;
-	line-height: normal;
+	display: block !important;
+	line-height: normal !important;
 }
 .ui-button-text-only .ui-button-text {
 	padding: .4em 1em;
