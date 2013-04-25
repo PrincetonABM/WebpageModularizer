@@ -603,7 +603,6 @@ var Modulr = {
 			value : 'Disable Modulr',
 			class : 'sideBarBtn'
 		}).button().click(function() {
-<<<<<<< HEAD
 			//close all buttons
 			$('.moduleBtn').css('visibility', 'hidden');
 			//detach event handlers
@@ -612,8 +611,7 @@ var Modulr = {
 			$('.side-bar').off();
 			$('.sideBarBtn').remove();
 			$('.side-bar').remove();
-=======
->>>>>>> 6221f0de74ad02bea3061b3762fcd5113d66980e
+
 		}).css({
 			width : '125px'
 		});
@@ -624,10 +622,8 @@ var Modulr = {
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-<<<<<<< HEAD
-=======
 			top : '75%',
->>>>>>> 6221f0de74ad02bea3061b3762fcd5113d66980e
+
 			width : '125px'
 		});
 
