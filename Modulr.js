@@ -144,6 +144,7 @@ var Modulr = {
 			class : 'moduleBtn',
 			id : 'drag'
 		}).button().click(function() {
+
 			module.draggable({
 				snap : true
 			});
@@ -434,7 +435,7 @@ var Modulr = {
 			$(":data(Module_number)").each(function() {
 				$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
 			});
-			
+
 		});
 		return Modulr.success;
 	},
@@ -466,7 +467,6 @@ var Modulr = {
 			value : 'Highlight Modules',
 			class : 'sideBarBtn'
 		}).button().click(function() {
-
 			Modulr.highlightModules(isHighlighted);
 			isHighlighted = !isHighlighted;
 		}).css({
@@ -523,11 +523,20 @@ var Modulr = {
 			width : '125px'
 		});
 
+		var openOptionsBtn = $('<input/>').attr({
+			value : 'Options',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			window.open(chrome.extension.getURL('options.html'));
+		}).css({
+			width : '125px'
+		});
+
 		sideBar.append(showModulesBtn);
 		sideBar.append(removeModulesBtn);
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
-
+		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab
