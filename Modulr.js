@@ -387,7 +387,6 @@ var Modulr = {
 		var storageName = 'Modulr_module_attributes_' + window.location;
 		var storageName2 = 'Modulr_module_splits_' + window.location;
 		var arr = [];
-		var length = wrappedModules.length;
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
 			arr[$(this).data("Module_number")] = style.cssText;
@@ -416,7 +415,6 @@ var Modulr = {
 						Modulr.modularize(document);
 					}
 				});
-
 			}
 		}
 		// Find the modules from the array of html contents from the save
