@@ -542,7 +542,6 @@ var Modulr = {
 				disableModulesBtn.button("option", "label", "Enable all Modules");
 			} else {
 				/** insert code to bring back event handlers **/
-				
 				disableModulesBtn.button("option", "label", "Disable all Modules");
 			}
 			
@@ -557,6 +556,7 @@ var Modulr = {
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
+			top: '75%',
 			width : '125px'
 		});
 
