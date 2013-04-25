@@ -623,7 +623,6 @@ var Modulr = {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
 			top : '75%',
-
 			width : '125px'
 		});
 
