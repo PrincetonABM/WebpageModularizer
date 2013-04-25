@@ -391,7 +391,6 @@ var Modulr = {
 		// Save the current page customization
 		var wrappedModules = $('.module_Modulr');
 		var arr = [];
-		var length = wrappedModules.length;
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
 			arr[$(this).data("Module_number")] = style.cssText;
