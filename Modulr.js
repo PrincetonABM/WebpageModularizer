@@ -313,6 +313,65 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
+
+		spacing += splitButton.outerWidth();
+		var colorButton = $('<input/>').attr({
+			type : 'color',
+			class : 'colorBtn',
+			id : 'colr'
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		}).change(function() {
+			module.find('*').css("color", this.value);
+		});
+/*
+		var fontButton = $('<button/>').attr({
+			id : "fonts",
+			value: "F"
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		}).click(function() {
+			var menu = $(document).one("click", function() {
+				menu.hide();
+			});
+			return false;
+		}).parent().buttonset().next().hide().menu();
+		var nextButton = $('<button/>').attr({
+			id : "next", 
+			value : "_"
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		*/
+		/*
+		var select1 = $('<select/>').attr({
+			id : 'combobox'
+		}).append(font1, font2, font3).combobox();
+		var font1 = $('<option/>').attr({
+			value : "Times New Roman",
+		})
+		var font2 = $('<option/>').attr({
+			value : "Garamond"
+		})
+		var font3 = $('<option/>').attr({
+			value : "Ruluko"
+		})
+*/
 		buttons.push(closeButton);
 		buttons.push(dragButton);
 		buttons.push(sizeUpButton);
@@ -320,6 +379,8 @@ var Modulr = {
 		buttons.push(isolateButton);
 		buttons.push(splitButton);
 		buttons.push(mergeButton);
+		buttons.push(colorButton);
+		//buttons.push(select1);
 		/*****************************/
 
 		return buttons;
@@ -542,6 +603,7 @@ var Modulr = {
 			value : 'Disable Modulr',
 			class : 'sideBarBtn'
 		}).button().click(function() {
+<<<<<<< HEAD
 			//close all buttons
 			$('.moduleBtn').css('visibility', 'hidden');
 			//detach event handlers
@@ -550,6 +612,8 @@ var Modulr = {
 			$('.side-bar').off();
 			$('.sideBarBtn').remove();
 			$('.side-bar').remove();
+=======
+>>>>>>> 6221f0de74ad02bea3061b3762fcd5113d66980e
 		}).css({
 			width : '125px'
 		});
@@ -560,7 +624,10 @@ var Modulr = {
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-			top : '55%',
+<<<<<<< HEAD
+=======
+			top : '75%',
+>>>>>>> 6221f0de74ad02bea3061b3762fcd5113d66980e
 			width : '125px'
 		});
 
