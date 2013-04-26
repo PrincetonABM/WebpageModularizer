@@ -391,15 +391,24 @@ var Modulr = {
 		// Save the current page customization
 		var wrappedModules = $('.module_Modulr');
 		var arr = [];
+                var tags = [];
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
-			arr[$(this).data("Module_number")] = style.cssText;
+                        var current = $(this).data("Module_number");
+			arr[current] = style.cssText;
+                        var html = $(this).html();
+                        tags[current] = html.match(/<[^>]*>/g);
+                        console.log(tags[current]);
 		});
-
+                
+                for (var i = 0; i < tags.length; i++)
+                    tags[i] = JSON.stringify(tags[i]);
+                
 		chrome.runtime.sendMessage({
 			command : "save",
 			attributes : JSON.stringify(arr),
-			split : JSON.stringify(Modulr.Moves)
+			split : JSON.stringify(Modulr.Moves),
+                        tags : JSON.stringify(tags)
 		}, function(response) {
 			return;
 		});
@@ -419,6 +428,10 @@ var Modulr = {
 			Modulr.notificationGood('Loading saved configuration.');
 			var attributes = JSON.parse(response.attributes);
 			var splitMoves = JSON.parse(response.split);
+                        var tags = JSON.parse(response.tags);
+                        for (var i = 0; i < tags.length; i++)
+                            tags[i] = JSON.parse(tags[i]);                        
+                        
 			for (var i = 0; i < splitMoves.length / 2; i++) {
 				if (splitMoves[i * 2 + 1] === 's') {
 					$(":data(Module_number)").each(function() {
@@ -427,12 +440,15 @@ var Modulr = {
 							Modulr.modularize(document);
 						}
 					});
-
 				}
 			}
+                        var offset = 0;
 			// Find the modules from the array of html contents from the save
 			$(":data(Module_number)").each(function() {
+                            if ($(this).html().match(/<[^>]*>/g) === tags[$(this).data("Module_number") - offset])
 				$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
+                            else
+                                offset++;
 			});
 
 		});
