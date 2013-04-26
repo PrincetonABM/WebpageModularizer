@@ -283,9 +283,17 @@ var Modulr = {
 			class : 'moduleBtn',
 			id : 'merge'
 		}).button().click(function() {
-			if (!Modulr.mergeToParent(module)) {
-				return;
-			}
+			//merge until the area is larger than that of the original modules
+			var origArea = Modularizer.getArea(module[0]);
+			var newParent = module;
+			do {
+				newParent = Modulr.mergeToParent(newParent);
+				if (newParent == null)
+					break;
+				console.log("new parent area: " + Modularizer.getArea(newParent[0]));
+				console.log("old area: " + origArea);
+			} while (newParent != null && Modularizer.getArea(newParent[0]) <= origArea);
+
 			//remove the buttons associated with the original (now merged) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
@@ -305,6 +313,65 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
+
+		spacing += splitButton.outerWidth();
+		var colorButton = $('<input/>').attr({
+			type : 'color',
+			class : 'colorBtn',
+			id : 'colr'
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		}).change(function() {
+			module.find('*').css("color", this.value);
+		});
+/*
+		var fontButton = $('<button/>').attr({
+			id : "fonts",
+			value: "F"
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		}).click(function() {
+			var menu = $(document).one("click", function() {
+				menu.hide();
+			});
+			return false;
+		}).parent().buttonset().next().hide().menu();
+		var nextButton = $('<button/>').attr({
+			id : "next", 
+			value : "_"
+		}).button().css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			width : '2%',
+			visibility : 'hidden'
+		});
+		*/
+		/*
+		var select1 = $('<select/>').attr({
+			id : 'combobox'
+		}).append(font1, font2, font3).combobox();
+		var font1 = $('<option/>').attr({
+			value : "Times New Roman",
+		})
+		var font2 = $('<option/>').attr({
+			value : "Garamond"
+		})
+		var font3 = $('<option/>').attr({
+			value : "Ruluko"
+		})
+*/
 		buttons.push(closeButton);
 		buttons.push(dragButton);
 		buttons.push(sizeUpButton);
@@ -312,6 +379,8 @@ var Modulr = {
 		buttons.push(isolateButton);
 		buttons.push(splitButton);
 		buttons.push(mergeButton);
+		buttons.push(colorButton);
+		//buttons.push(select1);
 		/*****************************/
 
 		return buttons;
@@ -327,17 +396,17 @@ var Modulr = {
 		parent.find('.module_Modulr').each(function() {
 			var child = $(this).children().eq(0);
 			child.unwrap();
-
 		});
-		//if the parent is already a module, you're done
+
+		//if the parent is already a module, get the parent of that module
 		if (module.parent('.module_Modulr').length > 0) {
-			return;
+			return null;
 		}
 		console.log("adding parent:");
 		console.log(parent[0]);
 
 		parent.wrap('<div class="module_Modulr" id="unset" />');
-		return true;
+		return parent;
 	},
 	split : function(module) {
 		//unwrap the module
@@ -475,7 +544,7 @@ var Modulr = {
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
 
-		var isHighlighted = false, modulesOpen = true, modulesDisabled = false;
+		var isHighlighted = false, modulesOpen = true;
 
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
@@ -485,7 +554,7 @@ var Modulr = {
 			Modulr.highlightModules(isHighlighted);
 			if (isHighlighted) {
 				showModulesBtn.button("option", "label", "Highlight Modules");
-				
+
 			} else {
 				showModulesBtn.button("option", "label", "Remove Highlights");
 			}
@@ -547,32 +616,28 @@ var Modulr = {
 		});
 
 		var disableModulesBtn = $('<input/>').attr({
-			value : 'Disable all Modules',
+			value : 'Disable Modulr',
 			class : 'sideBarBtn'
 		}).button().click(function() {
-			if (!modulesDisabled) {
-				//close all buttons
-				$('.moduleBtn').css('visibility', 'hidden');
-				//detach event handlers
-				$('.module_Modulr').off();
-				disableModulesBtn.button("option", "label", "Enable all Modules");
-			} else {
-				/** insert code to bring back event handlers **/
-				disableModulesBtn.button("option", "label", "Disable all Modules");
-			}
-			
-			
-			modulesDisabled = !modulesDisabled;
+			//close all buttons
+			$('.moduleBtn').css('visibility', 'hidden');
+			//detach event handlers
+			$('.module_Modulr').off();
+			$('.sideBarBtn').off();
+			$('.side-bar').off();
+			$('.sideBarBtn').remove();
+			$('.side-bar').remove();
 		}).css({
 			width : '125px'
 		});
+
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-			top: '75%',
+			top : '75%',
 			width : '125px'
 		});
 
@@ -585,12 +650,12 @@ var Modulr = {
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab
-			pathToTabImage : 'nothing', //path to the image for the tab (no image is used here at least for now..)
-			imageHeight : screen.height + 'px', //height of tab image *required*
-			imageWidth : '150px', //width of tab image *required*
+			pathToTabImage : chrome.extension.getURL("images/arrow32x32.png"), //path to the image for the tab
+			imageHeight : '48px', //height of tab image *required*
+			imageWidth : '48px', //width of tab image *required*
 			tabLocation : 'left', //side of screen where tab lives, top, right, bottom, or left
 			speed : 300, //speed of animation
-			action : 'hover', //options: 'click' or 'hover', action to trigger animation
+			action : 'click', //options: 'click' or 'hover', action to trigger animation
 			topPos : '0px', //position from the top
 			fixedPosition : true //options: true makes it stick(fixed position) on scroll
 		});
@@ -856,6 +921,7 @@ var Modularizer = {
 					continue;
 				}
 			}
+
 			console.log("successfully adding the module")
 			newModules.push(module);
 		}

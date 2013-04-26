@@ -1,6 +1,6 @@
 var key1 = 'Modulr_module_attributes_';
 var key2 = 'Modulr_module_splits_';
-
+var MAX_URL_LEN = 100;
 function addTableEntry(storageKey1, storageKey2, url) {
 
 	var table = $(".table").find('tbody');
@@ -46,7 +46,11 @@ $(document).ready(function() {
 		if (key.indexOf(key1) != -1) {
 			url = key.substr(key1.length);
 		}
-		addTableEntry(key1 + url, key2 + url, url);
+		urlText = url;
+		if (url.length > MAX_URL_LEN) {
+			urlText = url.substring(0,MAX_URL_LEN) + "...";
+		}
+		addTableEntry(key1 + url, key2 + url, urlText);
 	}
 
 	$('#deleteBtn').click(function() {
