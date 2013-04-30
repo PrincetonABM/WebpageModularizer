@@ -27,9 +27,7 @@ var Modulr = {
 		console.log(document);
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
-
 		Modulr.addSideBar();
-
 	},
 
 	modularize : function(doc) {
@@ -562,9 +560,10 @@ var Modulr = {
 
 	addSideBar : function() {
 		var body = $(document).find('body');
+		var globals = $('<div class="globals"></div>');
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
-
+		sideBar.append(globals);
 		var isHighlighted = false, modulesOpen = true;
 
 		/** add the buttons **/
@@ -650,24 +649,33 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
-
+		var splitAllModulesBtn = $('<input/>').attr({
+			value : 'Split all Modules',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			$('.moduleBtn#split').trigger('click');
+		}).css({
+			width : '125px'
+		});
+		
+		
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-			position: 'absolute',
-			top : '90%',
-			left: '10%',
 			width : '125px'
 		});
 
-		sideBar.append(showModulesBtn);
-		sideBar.append(removeModulesBtn);
+		globals.append(showModulesBtn);
+		globals.append(removeModulesBtn);
+		sideBar.append('<hr>');
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
+		globals.append(splitAllModulesBtn);
+		sideBar.append('<hr>');
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
@@ -681,7 +689,6 @@ var Modulr = {
 			topPos : '0px', //position from the top
 			fixedPosition : true //options: true makes it stick(fixed position) on scroll
 		});
-
 	},
 
 	highlightModules : function(highlighted) {
