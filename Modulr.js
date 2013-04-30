@@ -673,8 +673,8 @@ var Modulr = {
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab
 			pathToTabImage : chrome.extension.getURL("images/arrow32x32.png"), //path to the image for the tab
-			imageHeight : '48px', //height of tab image *required*
-			imageWidth : '48px', //width of tab image *required*
+			imageHeight : '32px', //height of tab image *required*
+			imageWidth : '32px', //width of tab image *required*
 			tabLocation : 'left', //side of screen where tab lives, top, right, bottom, or left
 			speed : 300, //speed of animation
 			action : 'click', //options: 'click' or 'hover', action to trigger animation
