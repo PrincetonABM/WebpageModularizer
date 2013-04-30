@@ -575,7 +575,6 @@ var Modulr = {
 			Modulr.highlightModules(isHighlighted);
 			if (isHighlighted) {
 				showModulesBtn.button("option", "label", "Highlight Modules");
-
 			} else {
 				showModulesBtn.button("option", "label", "Remove Highlights");
 			}
@@ -658,7 +657,9 @@ var Modulr = {
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-			top : '75%',
+			position: 'absolute',
+			top : '90%',
+			left: '10%',
 			width : '125px'
 		});
 
@@ -953,11 +954,3 @@ var Modularizer = {
 $(document).ready(function() {
 	Modulr.process(document);
 });
-/*
- var Cleaner = {
- clean : function(doc) {
- $("script").remove();
- $("meta").remove();
- }
- };
- */
