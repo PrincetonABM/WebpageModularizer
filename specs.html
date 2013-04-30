@@ -30,8 +30,21 @@
 
 		<div id='removeConfig' class='row-fluid'>
 			<div class='span9 main'>
-				<h2>Always Modularize:</h2>
 				<div class="well">
+					<h2>Settings</h2>
+					<label class="checkbox">
+						<input type="checkbox">
+						Some setting </label>
+					<label class="checkbox">
+						<input type="checkbox">
+						Some other setting </label>
+				</div>
+				
+				<div class="well">
+					<h2>Always Modularize</h2>
+					<p>
+						Domains listed below will always be modularized.
+					</p>
 					<table class="table">
 						<thead>
 							<tr>
@@ -42,15 +55,13 @@
 						<tbody></tbody>
 
 					</table>
+					<a href="#modalAdd" id="addURL" role="button" class="btn btn-primary" data-toggle="modal"><i class="icon-edit icon-white"></i> <span>Add URLs</span> </a>
+					<a href="#modalDelete" role="button" class="btn btn-primary" data-toggle="modal"><i class="icon-trash icon-white"></i> <span>Delete All URLs</span> </a>
+
 				</div>
-				<a href="#modalAdd" id="addURL" role="button" class="btn btn-primary" data-toggle="modal"><i class="icon-edit icon-white"></i> <span>Add URLs</span> </a>
-				<a href="#modalDelete" role="button" class="btn btn-primary" data-toggle="modal"><i class="icon-trash icon-white"></i> <span>Delete All URLs</span> </a>
-				
+
 			</div>
-			
-			
-			
-			
+
 			<div id="modalAdd" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 				<div class="modal-header">
 					<h3 id="myModalLabel">Add URLs</h3>
@@ -71,9 +82,7 @@
 					</button>
 				</div>
 			</div>
-			
-			
-			
+
 			<div id="modalDelete" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 				<div class="modal-header">
 					<h3 id="myModalLabel">Wait...</h3>

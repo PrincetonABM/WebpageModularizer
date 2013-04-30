@@ -27,9 +27,7 @@ var Modulr = {
 		console.log(document);
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
-
 		Modulr.addSideBar();
-
 	},
 
 	modularize : function(doc) {
@@ -325,53 +323,38 @@ var Modulr = {
 			top : module.position().top,
 			'font-size' : '10px',
 			width : '2%',
-			visibility : 'hidden'
+			visibility : 'hidden',
+			'padding-top' : 0,
+			'padding-bottom' : 0 
 		}).change(function() {
 			module.find('*').css("color", this.value);
 		});
-/*
-		var fontButton = $('<button/>').attr({
-			id : "fonts",
-			value: "F"
-		}).button().css({
-			position : 'absolute',
-			left : module.position().left + spacing,
-			top : module.position().top,
-			'font-size' : '10px',
-			width : '2%',
-			visibility : 'hidden'
-		}).click(function() {
-			var menu = $(document).one("click", function() {
-				menu.hide();
-			});
-			return false;
-		}).parent().buttonset().next().hide().menu();
-		var nextButton = $('<button/>').attr({
-			id : "next", 
-			value : "_"
-		}).button().css({
-			position : 'absolute',
-			left : module.position().left + spacing,
-			top : module.position().top,
-			'font-size' : '10px',
-			width : '2%',
-			visibility : 'hidden'
-		});
-		*/
-		/*
-		var select1 = $('<select/>').attr({
-			id : 'combobox'
-		}).append(font1, font2, font3).combobox();
+		
+		spacing += colorButton.outerWidth();
+
 		var font1 = $('<option/>').attr({
-			value : "Times New Roman",
-		})
+			value : "Times New Roman"
+		}).text("Times New Roman");
 		var font2 = $('<option/>').attr({
 			value : "Garamond"
-		})
+		}).text("Garamond");
 		var font3 = $('<option/>').attr({
 			value : "Ruluko"
-		})
-*/
+		}).text("Ruluko");
+		var select1 = $('<select/>').attr({
+			id : 'combobox'
+		}).append(font1, [font2, font3]).css({
+			position : 'absolute',
+			left : module.position().left + spacing,
+			top : module.position().top,
+			'font-size' : '10px',
+			visibility : 'hidden',
+			height : '25px'
+			}).change(function() {
+				module.find('*').css("font-family", this.value);
+			})
+		
+
 		buttons.push(closeButton);
 		buttons.push(dragButton);
 		buttons.push(sizeUpButton);
@@ -380,7 +363,7 @@ var Modulr = {
 		buttons.push(splitButton);
 		buttons.push(mergeButton);
 		buttons.push(colorButton);
-		//buttons.push(select1);
+		buttons.push(select1);
 		/*****************************/
 
 		return buttons;
@@ -577,9 +560,10 @@ var Modulr = {
 
 	addSideBar : function() {
 		var body = $(document).find('body');
+		var globals = $('<div class="globals"></div>');
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
-
+		sideBar.append(globals);
 		var isHighlighted = false, modulesOpen = true;
 
 		/** add the buttons **/
@@ -590,7 +574,6 @@ var Modulr = {
 			Modulr.highlightModules(isHighlighted);
 			if (isHighlighted) {
 				showModulesBtn.button("option", "label", "Highlight Modules");
-
 			} else {
 				showModulesBtn.button("option", "label", "Remove Highlights");
 			}
@@ -666,36 +649,46 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
-
+		var splitAllModulesBtn = $('<input/>').attr({
+			value : 'Split all Modules',
+			class : 'sideBarBtn'
+		}).button().click(function() {
+			$('.moduleBtn#split').trigger('click');
+		}).css({
+			width : '125px'
+		});
+		
+		
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
-			top : '75%',
 			width : '125px'
 		});
 
-		sideBar.append(showModulesBtn);
-		sideBar.append(removeModulesBtn);
+		globals.append(showModulesBtn);
+		globals.append(removeModulesBtn);
+		sideBar.append('<hr>');
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
+		globals.append(splitAllModulesBtn);
+		sideBar.append('<hr>');
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
 		$('.side-bar').tabSlideOut({
 			tabHandle : '.handle', //class of the element that will be your tab
 			pathToTabImage : chrome.extension.getURL("images/arrow32x32.png"), //path to the image for the tab
-			imageHeight : '48px', //height of tab image *required*
-			imageWidth : '48px', //width of tab image *required*
+			imageHeight : '32px', //height of tab image *required*
+			imageWidth : '32px', //width of tab image *required*
 			tabLocation : 'left', //side of screen where tab lives, top, right, bottom, or left
 			speed : 300, //speed of animation
 			action : 'click', //options: 'click' or 'hover', action to trigger animation
 			topPos : '0px', //position from the top
 			fixedPosition : true //options: true makes it stick(fixed position) on scroll
 		});
-
 	},
 
 	highlightModules : function(highlighted) {
@@ -968,11 +961,3 @@ var Modularizer = {
 $(document).ready(function() {
 	Modulr.process(document);
 });
-/*
- var Cleaner = {
- clean : function(doc) {
- $("script").remove();
- $("meta").remove();
- }
- };
- */

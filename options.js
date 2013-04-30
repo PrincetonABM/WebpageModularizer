@@ -1,8 +1,8 @@
 var key1 = 'Modulr_module_attributes_';
 var key2 = 'Modulr_module_splits_';
 var MAX_URL_LEN = 100;
-function addTableEntry(storageKey1, storageKey2, url) {
 
+function addTableEntry(storageKey1, storageKey2, url) {
 	var table = $(".table").find('tbody');
 	var tEntry = $('<tr><td>' + url + '</td><td><a role="button" data-toggle="modal"><i class="icon-remove"></i></a></td></tr>');
 	var deleteButton = tEntry.find('a');
@@ -12,7 +12,6 @@ function addTableEntry(storageKey1, storageKey2, url) {
 		tEntry.remove();
 	});
 	table.append(tEntry);
-
 }
 
 function deleteAll() {

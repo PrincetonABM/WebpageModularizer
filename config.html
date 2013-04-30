@@ -33,8 +33,13 @@
 
 		<div id='removeConfig' class='row-fluid'>
 			<div class='span9 main'>
-				<h2>Saved Configurations</h2>
+			
 				<div class="well">
+					<h2>Saved Configurations</h2>
+					<p>
+						The following URLs have saved module configurations associated with them. Running Modulr on the following pages will
+						re-load the saved configurations.  
+					</p>
 					<table class="table">
 						<thead>
 							<tr>
@@ -44,6 +49,9 @@
 						</thead>
 						<tbody></tbody>
 					</table>
+					<label class="checkbox">
+						<input type="checkbox">
+						Load these configurations on similar URLs.</label>
 				</div>
 				<!-- Button to trigger modal -->
 					<a href="#myModal" role="button" class="btn btn-primary" data-toggle="modal"><i class="icon-trash icon-white"></i> <span>Delete All Configurations</span> </a>
