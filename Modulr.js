@@ -503,7 +503,7 @@ var Modulr = {
                             tags[i] = JSON.parse(tags[i]);*/                        
                         console.log(tags);
 			for (var i = 0; i < splitMoves.length / 2; i++) {
-				if (splitMoves[i * 2 + 1] === 's') {
+				if (splitMoves[i * 2 + 1] === 's') {alert("splitting");
 					$(":data(Module_number)").each(function() {
 						if ($(this).data("Module_number") === splitMoves[i * 2]) {
 							Modulr.split($(this));
