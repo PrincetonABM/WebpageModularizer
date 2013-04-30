@@ -466,13 +466,14 @@ var Modulr = {
                         var current = $(this).data("Module_number");
 			arr[current] = style.cssText;
                         var html = $(this).html();
-                        tags[current] = html.match(/<[^>]*>/g);
-                        console.log(tags[current]);
+                        tags[current] = html.match(/<[^>\s]*/g);
 		});
-                
-                for (var i = 0; i < tags.length; i++)
+                console.log(tags);
+                /*for (var i = 0; i < tags.length; i++) {
                     tags[i] = JSON.stringify(tags[i]);
-                
+                }
+                console.log('---------------------------');
+                console.log(tags);*/
 		chrome.runtime.sendMessage({
 			command : "save",
 			attributes : JSON.stringify(arr),
@@ -498,9 +499,9 @@ var Modulr = {
 			var attributes = JSON.parse(response.attributes);
 			var splitMoves = JSON.parse(response.split);
                         var tags = JSON.parse(response.tags);
-                        for (var i = 0; i < tags.length; i++)
-                            tags[i] = JSON.parse(tags[i]);                        
-                        
+                        /*for (var i = 0; i < tags.length; i++)
+                            tags[i] = JSON.parse(tags[i]);*/                        
+                        console.log(tags);
 			for (var i = 0; i < splitMoves.length / 2; i++) {
 				if (splitMoves[i * 2 + 1] === 's') {
 					$(":data(Module_number)").each(function() {
@@ -511,14 +512,49 @@ var Modulr = {
 					});
 				}
 			}
-                        var offset = 0;
-			// Find the modules from the array of html contents from the save
-			$(":data(Module_number)").each(function() {
-                            if ($(this).html().match(/<[^>]*>/g) === tags[$(this).data("Module_number") - offset])
-				$(this)[0].setAttribute("style", attributes[$(this).data("Module_number")]);
-                            else
-                                offset++;
-			});
+                        
+                        var modules = $(":data(Module_number)");
+                        
+                        while (modules.length > 0) {
+                            var current = modules.eq(0);
+                                                        
+                            var index = 0;
+                            for (var j = 0; j < modules.length; j++) {
+                                if (modules.eq(j).data("Module_number") < current.data("Module_number")) {
+                                    current = modules.eq(j);
+                                }
+                            }
+                            modules = modules.not(current);
+                            
+                            console.log('THIS:');
+                            console.log(current.html().match(/<[^>\s]*/g));
+                            
+                            var currentTags = current.html().match(/<[^>\s]*/g);
+                            
+                            for (var j = 0; j < tags.length; j++) {
+                                var currentTagsClone = currentTags.slice(0);
+                                var found = 0;
+                                for (var i = 0; i < tags[j].length; i++) {
+                                    var index = currentTagsClone.indexOf(tags[j][i]);
+                                    if (index !== -1) {
+                                        found++;
+                                        currentTagsClone.splice(index, 1);
+                                    }
+                                }
+
+                                var longerLength = tags[j].length;
+                                if ((currentTags.length) > longerLength)
+                                    longerLength = currentTags.length;
+                                if ((tags[j].length) === 0 || found / longerLength >= .85){
+                                    console.log('MATCHED TO:');
+                                    console.log(tags[j]);
+                                    current[0].setAttribute("style", attributes[j]);
+                                    attributes.splice(j,1);
+                                    tags.splice(j,1);
+                                    break;
+                                }
+                            }
+			}
 
 		});
 		return Modulr.success;
