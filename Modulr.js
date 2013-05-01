@@ -374,6 +374,9 @@ var Modulr = {
 			Modulr.notificationBad("This module can't be merged");
 			return false;
 		}
+                Modulr.Moves.push(parseInt(module.data("Module_number")));
+                Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
+		Modulr.Moves.push('m');
 		var parent = module.parent();
 		// remove all children that are modules
 		parent.find('.module_Modulr').each(function() {
@@ -398,6 +401,7 @@ var Modulr = {
 			return false;
 		}
 		Modulr.Moves.push(parseInt(module.data("Module_number")));
+                Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
 		Modulr.Moves.push('s');
 		child.unwrap();
 		var subModules = new Array();
@@ -482,18 +486,76 @@ var Modulr = {
 			var attributes = JSON.parse(response.attributes);
 			var splitMoves = JSON.parse(response.split);
                         var tags = JSON.parse(response.tags);
+                        
+                        Modulr.Moves = splitMoves;
                         /*for (var i = 0; i < tags.length; i++)
                             tags[i] = JSON.parse(tags[i]);*/                        
                         console.log(tags);
-			for (var i = 0; i < splitMoves.length / 2; i++) {
-				if (splitMoves[i * 2 + 1] === 's') {alert("splitting");
-					$(":data(Module_number)").each(function() {
-						if ($(this).data("Module_number") === splitMoves[i * 2]) {
-							Modulr.split($(this));
-							Modulr.modularize(document);
-						}
-					});
-				}
+			for (var i = 0; i < splitMoves.length / 3; i++) {
+                                var modules = $(":data(Module_number)");
+                                var offset = 0;
+                                var splitTags = splitMoves[i * 3 + 1];
+                                $(this).data("Module_number") === splitMoves[i * 2];
+                                while (!(offset > modules.length)) {
+                                    var currentTags;
+                                    var currentElement = 0;
+                                    
+                                    modules.each(function() {
+                                        if ($(this).data("Module_number") === splitMoves[i * 3] + offset) {
+                                            currentTags = $(this).html().match(/<[^>\s]*/g);
+                                            currentElement = $(this);
+                                        }
+                                    });
+                                    
+                                    if (currentElement === 0) {
+                                        if (offset === 0)
+                                                offset++;
+                                            else if (offset > 0)
+                                                offset *= -1;
+                                            else
+                                                offset = (offset * -1) + 1;
+                                            continue;
+                                    }
+                                        
+                                    
+                                    console.log("SPLIT MATCHING THIS");
+                                    console.log(currentTags);
+                                    console.log("AGAINST SAVED");
+                                    console.log(splitTags);
+                                    var found = 0;
+                                        for (var j = 0; j < splitTags.length; j++) {
+                                            var index = currentTags.indexOf(splitTags[j]);
+                                            if (index !== -1) {
+                                                found++;
+                                                currentTags.splice(index, 1);
+                                            }
+                                        }
+
+                                        var longerLength = splitTags.length;
+                                        if ((currentTags.length + found) > longerLength)
+                                            longerLength = currentTags.length + found;
+                                        if ((splitTags.length) === 0 || found / longerLength >= .85){
+                                            if (splitMoves[i * 3 + 2] === 's') {
+                                                console.log('splitting');
+                                                Modulr.split(currentElement);
+                                                Modulr.modularize(document);
+                                            }
+                                            else {
+                                                console.log('merging');
+                                                Mrdulr.mergeToParent(currentElement);
+                                                Modulr.modularize(document);
+                                            }
+                                            break;
+                                        }
+                                        else {
+                                            if (offset === 0)
+                                                offset++;
+                                            else if (offset > 0)
+                                                offset *= -1;
+                                            else
+                                                offset = (offset * -1) + 1;
+                                        }
+                                }
 			}
                         
                         var modules = $(":data(Module_number)");
