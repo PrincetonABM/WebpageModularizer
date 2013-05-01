@@ -71,10 +71,11 @@ var Modulr = {
 						button.css({
 							position : 'absolute',
 							left : module.position().left + spacing,
-							top : module.position().top,
+							top : module.position().top - 27,
 							//bring this element to the very front (so the buttons arent hidden by other elements)
 							zIndex : 9999
 						});
+						if (module.position().top < 27) button.css({top : module.position().top});
 						spacing += button.outerWidth();
 					}
 
@@ -332,18 +333,23 @@ var Modulr = {
 		
 		spacing += colorButton.outerWidth();
 
-		var font1 = $('<option/>').attr({
-			value : "Times New Roman"
-		}).text("Times New Roman");
-		var font2 = $('<option/>').attr({
-			value : "Garamond"
-		}).text("Garamond");
-		var font3 = $('<option/>').attr({
-			value : "Ruluko"
-		}).text("Ruluko");
+		 var fonts = new Array(
+'Arial,Arial,Helvetica,sans-serif',
+'Arial Black,Arial Black,Gadget,sans-serif',
+'Comic Sans MS,Comic Sans MS,cursive',
+'Courier New,Courier New,Courier,monospace',
+'Georgia,Georgia,serif',
+'Impact,Charcoal,sans-serif',
+'Lucida Console,Monaco,monospace',
+'Lucida Sans Unicode,Lucida Grande,sans-serif',
+'Palatino Linotype,Book Antiqua,Palatino,serif',
+'Tahoma,Geneva,sans-serif',
+'Times New Roman,Times,serif',
+'Trebuchet MS,Helvetica,sans-serif',
+'Verdana,Geneva,sans-serif' );
 		var select1 = $('<select/>').attr({
 			id : 'combobox'
-		}).append(font1, [font2, font3]).css({
+		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
 			top : module.position().top,
@@ -354,6 +360,13 @@ var Modulr = {
 				module.find('*').css("font-family", this.value);
 			})
 		
+		jQuery.each(fonts, function(i, item) {
+			var opt = $('<option/>');
+			opt.attr('value : "' + item + '"');
+			opt.attr("style = 'font-family': '" + item + "'");
+			opt.text(item.split(',')[0]);
+			select1.append(opt);
+		})
 
 		buttons.push(closeButton);
 		buttons.push(dragButton);
