@@ -7,7 +7,7 @@ function injectScript() {
 	console.log("NOTE: Injecting Scripts");
 	// inject the custom CSS to be used with the jquery UI library
 	chrome.tabs.insertCSS(null, {
-		file : "jquery-ui.custom/css/pepper-grinder/jquery-ui-1.10.2.custom.css"
+		file : "jquery-ui.custom/css/pepper-grinder/jquery-ui-1.10.2.custom.min.css"
 	});
 	//inject css to be used with the modulr program
 	chrome.tabs.insertCSS(null, {

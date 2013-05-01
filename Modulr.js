@@ -569,7 +569,7 @@ var Modulr = {
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
 			value : 'Highlight Modules',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			Modulr.highlightModules(isHighlighted);
 			if (isHighlighted) {
@@ -584,7 +584,7 @@ var Modulr = {
 
 		var removeModulesBtn = $('<input/>').attr({
 			value : 'Remove all Modules',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			if (modulesOpen) {
 				Modulr.notificationGood($('.module_Modulr').length + " modules removed.");
@@ -613,7 +613,7 @@ var Modulr = {
 
 		var saveModulesBtn = $('<input/>').attr({
 			value : 'Save Configuration',
-			class : 'Modulr_save_button sideBarBtn'
+			class : 'Modulr_save_button sideBarBtn moduleBtn'
 		}).button().click(function() {
 			Modulr.notificationGood("Module configuration has been saved.");
 			Modulr.save();
@@ -623,7 +623,7 @@ var Modulr = {
 
 		var loadModulesBtn = $('<input/>').attr({
 			value : 'Load Configuration',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			if (Modulr.checkForLoad())
 				Modulr.notificationGood("Previous module configuration has been loaded.");
@@ -636,7 +636,7 @@ var Modulr = {
 
 		var disableModulesBtn = $('<input/>').attr({
 			value : 'Disable Modulr',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			//close all buttons
 			$('.moduleBtn').css('visibility', 'hidden');
@@ -651,17 +651,24 @@ var Modulr = {
 		});
 		var splitAllModulesBtn = $('<input/>').attr({
 			value : 'Split all Modules',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			$('.moduleBtn#split').trigger('click');
 		}).css({
 			width : '125px'
 		});
-		
+		var mergeAllModulesBtn = $('<input/>').attr({
+			value : 'Merge all Modules',
+			class : 'sideBarBtn moduleBtn'
+		}).button().click(function() {
+			$('.moduleBtn#merge').trigger('click');
+		}).css({
+			width : '125px'
+		});
 		
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
-			class : 'sideBarBtn'
+			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
 			window.open(chrome.extension.getURL('options.html'));
 		}).css({
@@ -675,6 +682,7 @@ var Modulr = {
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
 		globals.append(splitAllModulesBtn);
+		globals.append(mergeAllModulesBtn);
 		sideBar.append('<hr>');
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
