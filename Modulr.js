@@ -318,7 +318,7 @@ var Modulr = {
 		spacing += splitButton.outerWidth();
 		var colorButton = $('<input/>').attr({
 			type : 'color',
-			class : 'colorBtn',
+			class : 'moduleBtn',
 			id : 'colr'
 		}).button().css({
 			position : 'absolute',
@@ -350,7 +350,8 @@ var Modulr = {
 'Trebuchet MS,Helvetica,sans-serif',
 'Verdana,Geneva,sans-serif' );
 		var select1 = $('<select/>').attr({
-			id : 'combobox'
+			id : 'combobox',
+			class : 'moduleBtn'
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
