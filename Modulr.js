@@ -548,12 +548,12 @@ var Modulr = {
                                         if ((currentTags.length + found) > longerLength)
                                             longerLength = currentTags.length + found;
                                         if ((splitTags.length) === 0 || found / longerLength >= .85){
-                                            if (splitMoves[i * 3 + 2] === 's') {alert('s');
+                                            if (splitMoves[i * 3 + 2] === 's') {
                                                 console.log('Found! Splitting...');
                                                 Modulr.split(currentElement);
                                                 Modulr.modularize(document);
                                             }
-                                            else {alert('m');
+                                            else {
                                                 console.log('Found! Merging...');
                                                 Modulr.mergeToParent(currentElement);
                                                 Modulr.modularize(document);
@@ -571,7 +571,6 @@ var Modulr = {
                                 }
 			}
                         
-                        return Modulr.success;
                         var modules = $(":data(Module_number)");
                         
                         while (modules.length > 0) {
