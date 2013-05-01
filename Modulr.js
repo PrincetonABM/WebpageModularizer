@@ -500,7 +500,6 @@ var Modulr = {
 			var splitMoves = JSON.parse(response.split);
                         var tags = JSON.parse(response.tags);
                         
-                        Modulr.Moves = splitMoves;
                         /*for (var i = 0; i < tags.length; i++)
                             tags[i] = JSON.parse(tags[i]);*/                        
                         console.log(tags);
@@ -509,6 +508,12 @@ var Modulr = {
                                 var offset = 0;
                                 var splitTags = splitMoves[i * 3 + 1];
                                 $(this).data("Module_number") === splitMoves[i * 2];
+                                
+                                if (splitMoves[i * 3 + 2] === 's')
+                                    console.log("Attempting to Split\nSearching For:");
+                                else
+                                    console.log("Attempting to Merge\nSearching For:");
+                                console.log(splitMoves[i * 3 + 1]);
                                 while (!(offset > modules.length)) {
                                     var currentTags;
                                     var currentElement = 0;
@@ -530,11 +535,6 @@ var Modulr = {
                                             continue;
                                     }
                                         
-                                    
-                                    console.log("SPLIT MATCHING THIS");
-                                    console.log(currentTags);
-                                    console.log("AGAINST SAVED");
-                                    console.log(splitTags);
                                     var found = 0;
                                         for (var j = 0; j < splitTags.length; j++) {
                                             var index = currentTags.indexOf(splitTags[j]);
@@ -548,14 +548,14 @@ var Modulr = {
                                         if ((currentTags.length + found) > longerLength)
                                             longerLength = currentTags.length + found;
                                         if ((splitTags.length) === 0 || found / longerLength >= .85){
-                                            if (splitMoves[i * 3 + 2] === 's') {
-                                                console.log('splitting');
+                                            if (splitMoves[i * 3 + 2] === 's') {alert('s');
+                                                console.log('Found! Splitting...');
                                                 Modulr.split(currentElement);
                                                 Modulr.modularize(document);
                                             }
-                                            else {
-                                                console.log('merging');
-                                                Mrdulr.mergeToParent(currentElement);
+                                            else {alert('m');
+                                                console.log('Found! Merging...');
+                                                Modulr.mergeToParent(currentElement);
                                                 Modulr.modularize(document);
                                             }
                                             break;
@@ -571,6 +571,7 @@ var Modulr = {
                                 }
 			}
                         
+                        return Modulr.success;
                         var modules = $(":data(Module_number)");
                         
                         while (modules.length > 0) {
@@ -584,12 +585,13 @@ var Modulr = {
                             }
                             modules = modules.not(current);
                             
-                            console.log('THIS:');
-                            console.log(current.html().match(/<[^>\s]*/g));
+                            //console.log('THIS:');
+                            //console.log(current.html().match(/<[^>\s]*/g));
                             
                             var currentTags = current.html().match(/<[^>\s]*/g);
-                            
                             for (var j = 0; j < tags.length; j++) {
+                                if (tags[j] === null)
+                                    continue;
                                 var currentTagsClone = currentTags.slice(0);
                                 var found = 0;
                                 for (var i = 0; i < tags[j].length; i++) {
@@ -604,8 +606,8 @@ var Modulr = {
                                 if ((currentTags.length) > longerLength)
                                     longerLength = currentTags.length;
                                 if ((tags[j].length) === 0 || found / longerLength >= .85){
-                                    console.log('MATCHED TO:');
-                                    console.log(tags[j]);
+                                    //console.log('MATCHED TO:');
+                                    //console.log(tags[j]);
                                     current[0].setAttribute("style", attributes[j]);
                                     attributes.splice(j,1);
                                     tags.splice(j,1);
