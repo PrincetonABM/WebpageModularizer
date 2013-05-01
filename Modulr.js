@@ -22,12 +22,15 @@ var Modulr = {
 		body.after(notificationBad);
 		notificationBad.css('visibility', 'hidden');
 		notificationGood.css('visibility', 'hidden');
-
+		
+		Modulr.notificationGood("Modularizing the page...");
 		Modularizer.modularize(document);
 		console.log(document);
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
 		Modulr.addSideBar();
+		
+		
 	},
 
 	modularize : function(doc) {
@@ -86,7 +89,6 @@ var Modulr = {
 				mouseenter : function() {
 					module.css("box-shadow", "0 0 10px #000");
 					//module.css("outline", "green dotted 5px");
-
 				},
 				mouseleave : function() {
 					module.css("box-shadow", "0 0 0px #000");
