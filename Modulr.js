@@ -54,6 +54,7 @@ var Modulr = {
 
 			module.on({
 				click : function() {
+				
 					if (!showButtons) {
 						for (var i = 0; i < buttons.length; i++) {
 							var button = buttons[i];
@@ -81,10 +82,8 @@ var Modulr = {
 							//bring this element to the very front (so the buttons arent hidden by other elements)
 							zIndex : 9999
 						});
-						if (module.position().top < 27)
-							button.css({
-								top : module.position().top
-							});
+
+						if (module.offset().top < 27) button.css({top : module.position().top});
 						spacing += button.outerWidth();
 					}
 
@@ -659,7 +658,7 @@ var Modulr = {
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
 		sideBar.append(globals);
-		var isHighlighted = false, modulesOpen = true;
+		var isHighlighted = false, modulesOpen = true, isDisabled= false;
 
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
@@ -741,6 +740,45 @@ var Modulr = {
 			$('.side-bar').off();
 			$('.sideBarBtn').remove();
 			$('.side-bar').remove();
+		}).css({
+			width : '125px'
+		});
+		
+		var disableBtn = $('<input/>').attr({
+			value : 'Disable webpage',
+			class : 'sideBarBtn moduleBtn'
+		}).button().click(function() {
+			var	theLinks = document.getElementsByTagName("*");
+			
+			if (!isDisabled)
+			{
+		jQuery.each(theLinks, function(i, item) {
+			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
+				
+				//console.log($(item).attr('click'));
+				$(item).on('click.kill', function(e) {
+					e.preventDefault();
+				})
+				console.log($(item).attr('class'));
+			}
+			//else
+			
+		})
+			disableBtn.button("option", "label", "Enable webpage");
+		}
+		
+		else
+		{
+		jQuery.each(theLinks, function(i, item) {
+			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
+				
+				$(item).off('.kill');
+				console.log('disabling' + i);
+			}
+		})
+		disableBtn.button("option", "label", "Disable webpage");
+		}
+		isDisabled = !isDisabled;
 		}).css({
 			width : '125px'
 		});
@@ -834,6 +872,8 @@ var Modulr = {
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
+		sideBar.append(disableBtn);
+
 		sideBar.append('<hr>');
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
