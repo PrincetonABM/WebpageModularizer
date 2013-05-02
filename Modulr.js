@@ -33,6 +33,7 @@ var Modulr = {
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
 		Modulr.addSideBar();
+		$(document).tooltip();
 	},
 
 	modularize : function(doc) {
@@ -133,7 +134,8 @@ var Modulr = {
 		var closeButton = $('<input/>').attr({
 			value : "\u2716",
 			class : 'moduleBtn',
-			id : 'close'
+			id : 'close',
+			title : 'Hide this module from the page'
 		}).button().css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -164,7 +166,8 @@ var Modulr = {
 		var dragButton = $('<input/>').attr({
 			value : '\u2725',
 			class : 'moduleBtn',
-			id : 'drag'
+			id : 'drag',
+			title : 'Move this module around the page'
 		}).button().click(function() {
 
 			module.draggable({
@@ -191,7 +194,8 @@ var Modulr = {
 		var sizeUpButton = $('<input/>').attr({
 			value : '\u2191',
 			class : 'moduleBtn',
-			id : 'sizeup'
+			id : 'sizeup',
+			title: 'Increase this module\'s font size'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -217,7 +221,8 @@ var Modulr = {
 		var sizeDownButton = $('<input/>').attr({
 			value : '\u2193',
 			class : 'moduleBtn',
-			id : 'sizedown'
+			id : 'sizedown',
+			title : 'Decrease this module\'s font size.'
 		}).button().click(function() {
 			if (!fontChanged) {
 				//all children of the module need to inherit this font size
@@ -238,7 +243,8 @@ var Modulr = {
 		var isolateButton = $('<input/>').attr({
 			value : 'I',
 			class : 'moduleBtn',
-			id : 'isolate'
+			id : 'isolate',
+			title : 'Isolate this module on the page.'
 		}).button().click(function() {
 
 			if (!isIsolated) {
@@ -270,7 +276,8 @@ var Modulr = {
 		var splitButton = $('<input/>').attr({
 			value : 'S',
 			class : 'moduleBtn',
-			id : 'split'
+			id : 'split',
+			title : 'Divide this module into smaller modules.'
 		}).button().click(function() {
 
 			if (!Modulr.split(module)) {
@@ -303,7 +310,8 @@ var Modulr = {
 		var mergeButton = $('<input/>').attr({
 			value : 'M',
 			class : 'moduleBtn',
-			id : 'merge'
+			id : 'merge',
+			title: 'Merge this module with other modules.'
 		}).button().click(function() {
 			//merge until the area is larger than that of the original modules
 			var origArea = Modularizer.getArea(module[0]);
@@ -340,7 +348,8 @@ var Modulr = {
 		var colorButton = $('<input/>').attr({
 			type : 'color',
 			class : 'moduleBtn',
-			id : 'colr'
+			id : 'colr',
+			title : 'Change text color.'
 		}).button().css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -359,7 +368,8 @@ var Modulr = {
 		var fonts = new Array('Arial,Arial,Helvetica,sans-serif', 'Arial Black,Arial Black,Gadget,sans-serif', 'Comic Sans MS,Comic Sans MS,cursive', 'Courier New,Courier New,Courier,monospace', 'Georgia,Georgia,serif', 'Impact,Charcoal,sans-serif', 'Lucida Console,Monaco,monospace', 'Lucida Sans Unicode,Lucida Grande,sans-serif', 'Palatino Linotype,Book Antiqua,Palatino,serif', 'Tahoma,Geneva,sans-serif', 'Times New Roman,Times,serif', 'Trebuchet MS,Helvetica,sans-serif', 'Verdana,Geneva,sans-serif');
 		var select1 = $('<select/>').attr({
 			id : 'combobox',
-			class : 'moduleBtn'
+			class : 'moduleBtn',
+			title : 'Change text font.'
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -808,18 +818,19 @@ var Modulr = {
 			fontSize -= 25;
 			$('.module_Modulr').css("font-size", fontSize + "%");
 		});
-
+		
+		sizeChangeSet = $('<div/>');
+		sizeChangeSet.append(sizeUpButton);
+		sizeChangeSet.append(sizeDownButton);
 		globals.append(showModulesBtn);
 		globals.append(removeModulesBtn);
 		globals.append(splitAllModulesBtn);
 		globals.append(mergeAllModulesBtn);
 		globals.append(select1);
 		globals.append(colorButton);
-		globals.append(sizeUpButton);
-		globals.append(sizeDownButton);
-
+		globals.append(sizeChangeSet);
 		sideBar.append('<p/>');
-		sideBar.append('<hr>');
+		sideBar.append($('<hr>').css("float", "none"));
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
