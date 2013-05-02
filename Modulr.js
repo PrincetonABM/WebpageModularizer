@@ -22,7 +22,7 @@ var Modulr = {
 		body.after(notificationBad);
 		notificationBad.css('visibility', 'hidden');
 		notificationGood.css('visibility', 'hidden');
-		
+
 		Modulr.notificationGood("Modularizing the page...");
 		Modularizer.modularize(document);
 		console.log(document);
@@ -76,7 +76,10 @@ var Modulr = {
 							//bring this element to the very front (so the buttons arent hidden by other elements)
 							zIndex : 9999
 						});
-						if (module.position().top < 27) button.css({top : module.position().top});
+						if (module.position().top < 27)
+							button.css({
+								top : module.position().top
+							});
 						spacing += button.outerWidth();
 					}
 
@@ -108,7 +111,7 @@ var Modulr = {
 
 		/******* create the buttons **********/
 		var closeButton = $('<input/>').attr({
-			value : "X",
+			value : "\u2716",
 			class : 'moduleBtn',
 			id : 'close'
 		}).button().css({
@@ -139,7 +142,7 @@ var Modulr = {
 		spacing += closeButton.outerWidth();
 
 		var dragButton = $('<input/>').attr({
-			value : 'D',
+			value : '\u2725',
 			class : 'moduleBtn',
 			id : 'drag'
 		}).button().click(function() {
@@ -166,7 +169,7 @@ var Modulr = {
 		spacing += dragButton.outerWidth();
 
 		var sizeUpButton = $('<input/>').attr({
-			value : '^',
+			value : '\u2191',
 			class : 'moduleBtn',
 			id : 'sizeup'
 		}).button().click(function() {
@@ -192,7 +195,7 @@ var Modulr = {
 
 		spacing += sizeUpButton.outerWidth();
 		var sizeDownButton = $('<input/>').attr({
-			value : 'v',
+			value : '\u2193',
 			class : 'moduleBtn',
 			id : 'sizedown'
 		}).button().click(function() {
@@ -326,27 +329,14 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden',
 			'padding-top' : 0,
-			'padding-bottom' : 0 
+			'padding-bottom' : 0
 		}).change(function() {
 			module.find('*').css("color", this.value);
 		});
-		
+
 		spacing += colorButton.outerWidth();
 
-		 var fonts = new Array(
-'Arial,Arial,Helvetica,sans-serif',
-'Arial Black,Arial Black,Gadget,sans-serif',
-'Comic Sans MS,Comic Sans MS,cursive',
-'Courier New,Courier New,Courier,monospace',
-'Georgia,Georgia,serif',
-'Impact,Charcoal,sans-serif',
-'Lucida Console,Monaco,monospace',
-'Lucida Sans Unicode,Lucida Grande,sans-serif',
-'Palatino Linotype,Book Antiqua,Palatino,serif',
-'Tahoma,Geneva,sans-serif',
-'Times New Roman,Times,serif',
-'Trebuchet MS,Helvetica,sans-serif',
-'Verdana,Geneva,sans-serif' );
+		var fonts = new Array('Arial,Arial,Helvetica,sans-serif', 'Arial Black,Arial Black,Gadget,sans-serif', 'Comic Sans MS,Comic Sans MS,cursive', 'Courier New,Courier New,Courier,monospace', 'Georgia,Georgia,serif', 'Impact,Charcoal,sans-serif', 'Lucida Console,Monaco,monospace', 'Lucida Sans Unicode,Lucida Grande,sans-serif', 'Palatino Linotype,Book Antiqua,Palatino,serif', 'Tahoma,Geneva,sans-serif', 'Times New Roman,Times,serif', 'Trebuchet MS,Helvetica,sans-serif', 'Verdana,Geneva,sans-serif');
 		var select1 = $('<select/>').attr({
 			id : 'combobox',
 			class : 'moduleBtn'
@@ -357,10 +347,10 @@ var Modulr = {
 			'font-size' : '10px',
 			visibility : 'hidden',
 			height : '25px'
-			}).change(function() {
-				module.find('*').css("font-family", this.value);
-			})
-		
+		}).change(function() {
+			module.find('*').css("font-family", this.value);
+		})
+
 		jQuery.each(fonts, function(i, item) {
 			var opt = $('<option/>');
 			opt.attr('value : "' + item + '"');
@@ -388,8 +378,8 @@ var Modulr = {
 			Modulr.notificationBad("This module can't be merged");
 			return false;
 		}
-                Modulr.Moves.push(parseInt(module.data("Module_number")));
-                Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
+		Modulr.Moves.push(parseInt(module.data("Module_number")));
+		Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
 		Modulr.Moves.push('m');
 		var parent = module.parent();
 		// remove all children that are modules
@@ -415,7 +405,7 @@ var Modulr = {
 			return false;
 		}
 		Modulr.Moves.push(parseInt(module.data("Module_number")));
-                Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
+		Modulr.Moves.push(module.html().match(/<[^>\s]*/g));
 		Modulr.Moves.push('s');
 		child.unwrap();
 		var subModules = new Array();
@@ -461,25 +451,25 @@ var Modulr = {
 		// Save the current page customization
 		var wrappedModules = $('.module_Modulr');
 		var arr = [];
-                var tags = [];
+		var tags = [];
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
-                        var current = $(this).data("Module_number");
+			var current = $(this).data("Module_number");
 			arr[current] = style.cssText;
-                        var html = $(this).html();
-                        tags[current] = html.match(/<[^>\s]*/g);
+			var html = $(this).html();
+			tags[current] = html.match(/<[^>\s]*/g);
 		});
-                console.log(tags);
-                /*for (var i = 0; i < tags.length; i++) {
-                    tags[i] = JSON.stringify(tags[i]);
-                }
-                console.log('---------------------------');
-                console.log(tags);*/
+		console.log(tags);
+		/*for (var i = 0; i < tags.length; i++) {
+		 tags[i] = JSON.stringify(tags[i]);
+		 }
+		 console.log('---------------------------');
+		 console.log(tags);*/
 		chrome.runtime.sendMessage({
 			command : "save",
 			attributes : JSON.stringify(arr),
 			split : JSON.stringify(Modulr.Moves),
-                        tags : JSON.stringify(tags)
+			tags : JSON.stringify(tags)
 		}, function(response) {
 			return;
 		});
@@ -499,121 +489,119 @@ var Modulr = {
 			Modulr.notificationGood('Loading saved configuration.');
 			var attributes = JSON.parse(response.attributes);
 			var splitMoves = JSON.parse(response.split);
-                        var tags = JSON.parse(response.tags);
-                        
-                        /*for (var i = 0; i < tags.length; i++)
-                            tags[i] = JSON.parse(tags[i]);*/                        
-                        console.log(tags);
+			var tags = JSON.parse(response.tags);
+
+			/*for (var i = 0; i < tags.length; i++)
+			 tags[i] = JSON.parse(tags[i]);*/
+			console.log(tags);
 			for (var i = 0; i < splitMoves.length / 3; i++) {
-                                var modules = $(":data(Module_number)");
-                                var offset = 0;
-                                var splitTags = splitMoves[i * 3 + 1];
-                                $(this).data("Module_number") === splitMoves[i * 2];
-                                
-                                if (splitMoves[i * 3 + 2] === 's')
-                                    console.log("Attempting to Split\nSearching For:");
-                                else
-                                    console.log("Attempting to Merge\nSearching For:");
-                                console.log(splitMoves[i * 3 + 1]);
-                                while (!(offset > modules.length)) {
-                                    var currentTags;
-                                    var currentElement = 0;
-                                    
-                                    modules.each(function() {
-                                        if ($(this).data("Module_number") === splitMoves[i * 3] + offset) {
-                                            currentTags = $(this).html().match(/<[^>\s]*/g);
-                                            currentElement = $(this);
-                                        }
-                                    });
-                                    
-                                    if (currentElement === 0) {
-                                        if (offset === 0)
-                                                offset++;
-                                            else if (offset > 0)
-                                                offset *= -1;
-                                            else
-                                                offset = (offset * -1) + 1;
-                                            continue;
-                                    }
-                                        
-                                    var found = 0;
-                                        for (var j = 0; j < splitTags.length; j++) {
-                                            var index = currentTags.indexOf(splitTags[j]);
-                                            if (index !== -1) {
-                                                found++;
-                                                currentTags.splice(index, 1);
-                                            }
-                                        }
+				var modules = $(":data(Module_number)");
+				var offset = 0;
+				var splitTags = splitMoves[i * 3 + 1];
+				$(this).data("Module_number") === splitMoves[i * 2];
 
-                                        var longerLength = splitTags.length;
-                                        if ((currentTags.length + found) > longerLength)
-                                            longerLength = currentTags.length + found;
-                                        if ((splitTags.length) === 0 || found / longerLength >= .85){
-                                            if (splitMoves[i * 3 + 2] === 's') {
-                                                console.log('Found! Splitting...');
-                                                Modulr.split(currentElement);
-                                                Modulr.modularize(document);
-                                            }
-                                            else {
-                                                console.log('Found! Merging...');
-                                                Modulr.mergeToParent(currentElement);
-                                                Modulr.modularize(document);
-                                            }
-                                            break;
-                                        }
-                                        else {
-                                            if (offset === 0)
-                                                offset++;
-                                            else if (offset > 0)
-                                                offset *= -1;
-                                            else
-                                                offset = (offset * -1) + 1;
-                                        }
-                                }
+				if (splitMoves[i * 3 + 2] === 's')
+					console.log("Attempting to Split\nSearching For:");
+				else
+					console.log("Attempting to Merge\nSearching For:");
+				console.log(splitMoves[i * 3 + 1]);
+				while (!(offset > modules.length)) {
+					var currentTags;
+					var currentElement = 0;
+
+					modules.each(function() {
+						if ($(this).data("Module_number") === splitMoves[i * 3] + offset) {
+							currentTags = $(this).html().match(/<[^>\s]*/g);
+							currentElement = $(this);
+						}
+					});
+
+					if (currentElement === 0) {
+						if (offset === 0)
+							offset++;
+						else if (offset > 0)
+							offset *= -1;
+						else
+							offset = (offset * -1) + 1;
+						continue;
+					}
+
+					var found = 0;
+					for (var j = 0; j < splitTags.length; j++) {
+						var index = currentTags.indexOf(splitTags[j]);
+						if (index !== -1) {
+							found++;
+							currentTags.splice(index, 1);
+						}
+					}
+
+					var longerLength = splitTags.length;
+					if ((currentTags.length + found) > longerLength)
+						longerLength = currentTags.length + found;
+					if ((splitTags.length) === 0 || found / longerLength >= .85) {
+						if (splitMoves[i * 3 + 2] === 's') {
+							console.log('Found! Splitting...');
+							Modulr.split(currentElement);
+							Modulr.modularize(document);
+						} else {
+							console.log('Found! Merging...');
+							Modulr.mergeToParent(currentElement);
+							Modulr.modularize(document);
+						}
+						break;
+					} else {
+						if (offset === 0)
+							offset++;
+						else if (offset > 0)
+							offset *= -1;
+						else
+							offset = (offset * -1) + 1;
+					}
+				}
 			}
-                        
-                        var modules = $(":data(Module_number)");
-                        
-                        while (modules.length > 0) {
-                            var current = modules.eq(0);
-                                                        
-                            var index = 0;
-                            for (var j = 0; j < modules.length; j++) {
-                                if (modules.eq(j).data("Module_number") < current.data("Module_number")) {
-                                    current = modules.eq(j);
-                                }
-                            }
-                            modules = modules.not(current);
-                            
-                            //console.log('THIS:');
-                            //console.log(current.html().match(/<[^>\s]*/g));
-                            
-                            var currentTags = current.html().match(/<[^>\s]*/g);
-                            for (var j = 0; j < tags.length; j++) {
-                                if (tags[j] === null)
-                                    continue;
-                                var currentTagsClone = currentTags.slice(0);
-                                var found = 0;
-                                for (var i = 0; i < tags[j].length; i++) {
-                                    var index = currentTagsClone.indexOf(tags[j][i]);
-                                    if (index !== -1) {
-                                        found++;
-                                        currentTagsClone.splice(index, 1);
-                                    }
-                                }
 
-                                var longerLength = tags[j].length;
-                                if ((currentTags.length) > longerLength)
-                                    longerLength = currentTags.length;
-                                if ((tags[j].length) === 0 || found / longerLength >= .85){
-                                    //console.log('MATCHED TO:');
-                                    //console.log(tags[j]);
-                                    current[0].setAttribute("style", attributes[j]);
-                                    attributes.splice(j,1);
-                                    tags.splice(j,1);
-                                    break;
-                                }
-                            }
+			var modules = $(":data(Module_number)");
+
+			while (modules.length > 0) {
+				var current = modules.eq(0);
+
+				var index = 0;
+				for (var j = 0; j < modules.length; j++) {
+					if (modules.eq(j).data("Module_number") < current.data("Module_number")) {
+						current = modules.eq(j);
+					}
+				}
+				modules = modules.not(current);
+
+				//console.log('THIS:');
+				//console.log(current.html().match(/<[^>\s]*/g));
+
+				var currentTags = current.html().match(/<[^>\s]*/g);
+				for (var j = 0; j < tags.length; j++) {
+					if (tags[j] === null)
+						continue;
+					var currentTagsClone = currentTags.slice(0);
+					var found = 0;
+					for (var i = 0; i < tags[j].length; i++) {
+						var index = currentTagsClone.indexOf(tags[j][i]);
+						if (index !== -1) {
+							found++;
+							currentTagsClone.splice(index, 1);
+						}
+					}
+
+					var longerLength = tags[j].length;
+					if ((currentTags.length) > longerLength)
+						longerLength = currentTags.length;
+					if ((tags[j].length) === 0 || found / longerLength >= .85) {
+						//console.log('MATCHED TO:');
+						//console.log(tags[j]);
+						current[0].setAttribute("style", attributes[j]);
+						attributes.splice(j, 1);
+						tags.splice(j, 1);
+						break;
+					}
+				}
 			}
 
 		});
@@ -742,7 +730,7 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
-		
+
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
 			class : 'sideBarBtn'
@@ -751,15 +739,77 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
+		
+		
+		
+		
+		var fonts = new Array('Arial,Arial,Helvetica,sans-serif', 'Arial Black,Arial Black,Gadget,sans-serif', 'Comic Sans MS,Comic Sans MS,cursive', 'Courier New,Courier New,Courier,monospace', 'Georgia,Georgia,serif', 'Impact,Charcoal,sans-serif', 'Lucida Console,Monaco,monospace', 'Lucida Sans Unicode,Lucida Grande,sans-serif', 'Palatino Linotype,Book Antiqua,Palatino,serif', 'Tahoma,Geneva,sans-serif', 'Times New Roman,Times,serif', 'Trebuchet MS,Helvetica,sans-serif', 'Verdana,Geneva,sans-serif');
+		var select1 = $('<select/>').attr({
+			id : 'combobox',
+			class : 'sideBarBtn'
+		}).css({
+			float: 'none',
+			width : '150px'
+		}).change(function() {
+			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("font-family", this.value);
+		})
+
+		jQuery.each(fonts, function(i, item) {
+			var opt = $('<option/>');
+			opt.attr('value : "' + item + '"');
+			opt.attr("style = 'font-family': '" + item + "'");
+			opt.text(item.split(',')[0]);
+			select1.append(opt);
+		})
+		
+		var colorButton = $('<input/>').attr({
+			type : 'color',
+			class : 'sideBarBtn fontColorPicker',
+			id : 'colr'
+		}).button().css({
+			width : '125px',
+		}).change(function() {
+			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("color", this.value);
+		});
+		var sizeUpButton = $('<input/>').attr({
+			value : '\u2191',
+			class : 'sideBarBtn'
+		}).button().css({
+			float : 'left',
+			width : '50px'
+		}).click(function() {
+		});
+
+		var sizeDownButton = $('<input/>').attr({
+			value : '\u2193',
+			class : 'sideBarBtn'
+		}).button().css({
+			float : 'left',
+			width : '50px'
+		}).change(function() {
+			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("color", this.value);
+		});
+		
+		
+		
+		
+
+
 
 		globals.append(showModulesBtn);
 		globals.append(removeModulesBtn);
+		globals.append(splitAllModulesBtn);
+		globals.append(mergeAllModulesBtn);
+		globals.append(select1);
+		globals.append(colorButton);
+		globals.append(sizeUpButton);
+		globals.append(sizeDownButton);
+		
+		sideBar.append('<p/>');
 		sideBar.append('<hr>');
 		sideBar.append(saveModulesBtn);
 		sideBar.append(loadModulesBtn);
 		sideBar.append(disableModulesBtn);
-		globals.append(splitAllModulesBtn);
-		globals.append(mergeAllModulesBtn);
 		sideBar.append('<hr>');
 		sideBar.append(openOptionsBtn);
 		body.after(sideBar);
