@@ -4,6 +4,10 @@
  * Input: A document with modules wrapped in tags with a unique identifier (with a class, id, name...)
  * Output: UI customizability features added to these modules
  */
+
+//initial font size (100%)
+var fontSize = 100;
+
 var Modulr = {
 
 	//this variable can be changed later. i only have this to resolve the problem of limited function scope
@@ -86,6 +90,23 @@ var Modulr = {
 				},
 				mouseover : function() {
 					module.css("box-shadow", "0 0 10px #000");
+					//reset the positions of the buttons
+					var spacing = 0;
+					for (var i = 0; i < buttons.length; i++) {
+						var button = buttons[i];
+						button.css({
+							position : 'absolute',
+							left : module.position().left + spacing,
+							top : module.position().top - 27,
+							//bring this element to the very front (so the buttons arent hidden by other elements)
+							zIndex : 9999
+						});
+						if (module.position().top < 27)
+							button.css({
+								top : module.position().top
+							});
+						spacing += button.outerWidth();
+					}
 				},
 				mouseenter : function() {
 					module.css("box-shadow", "0 0 10px #000");
@@ -105,8 +126,7 @@ var Modulr = {
 		var buttons = new Array();
 		var isDraggable = false, isResizable = false, isIsolated = false;
 		var fontChanged = false;
-		//initial font size (100%)
-		var fontSize = 100;
+
 		var spacing = 0;
 
 		/******* create the buttons **********/
@@ -739,16 +759,13 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
-		
-		
-		
-		
+
 		var fonts = new Array('Arial,Arial,Helvetica,sans-serif', 'Arial Black,Arial Black,Gadget,sans-serif', 'Comic Sans MS,Comic Sans MS,cursive', 'Courier New,Courier New,Courier,monospace', 'Georgia,Georgia,serif', 'Impact,Charcoal,sans-serif', 'Lucida Console,Monaco,monospace', 'Lucida Sans Unicode,Lucida Grande,sans-serif', 'Palatino Linotype,Book Antiqua,Palatino,serif', 'Tahoma,Geneva,sans-serif', 'Times New Roman,Times,serif', 'Trebuchet MS,Helvetica,sans-serif', 'Verdana,Geneva,sans-serif');
 		var select1 = $('<select/>').attr({
 			id : 'combobox',
 			class : 'sideBarBtn'
 		}).css({
-			float: 'none',
+			float : 'none',
 			width : '150px'
 		}).change(function() {
 			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("font-family", this.value);
@@ -761,7 +778,6 @@ var Modulr = {
 			opt.text(item.split(',')[0]);
 			select1.append(opt);
 		})
-		
 		var colorButton = $('<input/>').attr({
 			type : 'color',
 			class : 'sideBarBtn fontColorPicker',
@@ -778,6 +794,8 @@ var Modulr = {
 			float : 'left',
 			width : '50px'
 		}).click(function() {
+			fontSize += 25;
+			$('.module_Modulr').css("font-size", fontSize + "%");
 		});
 
 		var sizeDownButton = $('<input/>').attr({
@@ -786,15 +804,10 @@ var Modulr = {
 		}).button().css({
 			float : 'left',
 			width : '50px'
-		}).change(function() {
-			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("color", this.value);
+		}).click(function() {
+			fontSize -= 25;
+			$('.module_Modulr').css("font-size", fontSize + "%");
 		});
-		
-		
-		
-		
-
-
 
 		globals.append(showModulesBtn);
 		globals.append(removeModulesBtn);
@@ -804,7 +817,7 @@ var Modulr = {
 		globals.append(colorButton);
 		globals.append(sizeUpButton);
 		globals.append(sizeDownButton);
-		
+
 		sideBar.append('<p/>');
 		sideBar.append('<hr>');
 		sideBar.append(saveModulesBtn);
