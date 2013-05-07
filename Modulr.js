@@ -16,6 +16,7 @@ var Modulr = {
 	processing : true,
 	// Sequence of customizations made by the user
 	Moves : [],
+        Globals : [],
 
 	process : function(doc) {
 		//add the notification divs
@@ -498,7 +499,8 @@ var Modulr = {
 			command : "save",
 			attributes : JSON.stringify(arr),
 			split : JSON.stringify(Modulr.Moves),
-			tags : JSON.stringify(tags)
+			tags : JSON.stringify(tags),
+                        globals : JSON.stringify(Modulr.Globals)
 		}, function(response) {
 			return;
 		});
@@ -515,14 +517,46 @@ var Modulr = {
 			if (!Modulr.success) {
 				return;
 			}
-			Modulr.notificationGood('Loading saved configuration.');
+                        
+                        if (response.exact)
+                            Modulr.notificationGood('Loading saved configuration.');
+                        else
+                            Modulr.notificationGood('Loading similar saved configuration.');
+                        
 			var attributes = JSON.parse(response.attributes);
 			var splitMoves = JSON.parse(response.split);
 			var tags = JSON.parse(response.tags);
-
-			/*for (var i = 0; i < tags.length; i++)
-			 tags[i] = JSON.parse(tags[i]);*/
+                        var globals = JSON.parse(response.globals);
+                        
 			console.log(tags);
+                        
+                        // Apply all the saved global settings
+                        for (var i = 0; i < globals.length / 2; i++) {
+                            if (globals[2 * i] === 'split') {
+                                $('.moduleBtn#split').trigger('click');
+                            }
+                            if (globals[2 * i] === 'merge') {
+                                $('.moduleBtn#merge').trigger('click');
+                            }
+                            if (globals[2 * i] === 'font') {
+                                $(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("font-family", globals[2 * i + 1]);
+                            }
+                            if (globals[2 * i] === 'color') {
+                                $(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("color", globals[2 * i + 1]);
+                            }
+                            if (globals[2 * i] === 'sizeup') {
+                                fontSize += 25;
+                                $('.module_Modulr').css("font-size", fontSize + "%");
+                            }
+                            if (globals[2 * i] === 'sizedown') {
+                                fontSize -= 25;
+                                $('.module_Modulr').css("font-size", fontSize + "%");
+                            }
+                        }
+                        
+                        Modulr.Globals = globals;
+                        
+                        // Perform the saved splid and merge operations
 			for (var i = 0; i < splitMoves.length / 3; i++) {
 				var modules = $(":data(Module_number)");
 				var offset = 0;
@@ -571,11 +605,9 @@ var Modulr = {
 						if (splitMoves[i * 3 + 2] === 's') {
 							console.log('Found! Splitting...');
 							Modulr.split(currentElement);
-							Modulr.modularize(document);
 						} else {
 							console.log('Found! Merging...');
 							Modulr.mergeToParent(currentElement);
-							Modulr.modularize(document);
 						}
 						break;
 					} else {
@@ -591,6 +623,8 @@ var Modulr = {
 
 			var modules = $(":data(Module_number)");
 
+
+                        // Apply saved CSS to all modules
 			while (modules.length > 0) {
 				var current = modules.eq(0);
 
@@ -602,8 +636,8 @@ var Modulr = {
 				}
 				modules = modules.not(current);
 
-				//console.log('THIS:');
-				//console.log(current.html().match(/<[^>\s]*/g));
+				console.log('THIS:');
+				console.log(current.html().match(/<[^>\s]*/g));
 
 				var currentTags = current.html().match(/<[^>\s]*/g);
 				for (var j = 0; j < tags.length; j++) {
@@ -623,8 +657,8 @@ var Modulr = {
 					if ((currentTags.length) > longerLength)
 						longerLength = currentTags.length;
 					if ((tags[j].length) === 0 || found / longerLength >= .85) {
-						//console.log('MATCHED TO:');
-						//console.log(tags[j]);
+						console.log('MATCHED TO:');
+						console.log(tags[j]);
 						current[0].setAttribute("style", attributes[j]);
 						attributes.splice(j, 1);
 						tags.splice(j, 1);
@@ -634,6 +668,7 @@ var Modulr = {
 			}
 
 		});
+                Modulr.modularize(document);
 		return Modulr.success;
 	},
 
@@ -787,6 +822,8 @@ var Modulr = {
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			$('.moduleBtn#split').trigger('click');
+                        Modulr.Globals.push('split');
+                        Modulr.Globals.push('');
 		}).css({
 			width : '125px'
 		});
@@ -795,6 +832,8 @@ var Modulr = {
 			class : 'sideBarBtn'
 		}).button().click(function() {
 			$('.moduleBtn#merge').trigger('click');
+                        Modulr.Globals.push('merge');
+                        Modulr.Globals.push('');
 		}).css({
 			width : '125px'
 		});
@@ -817,6 +856,8 @@ var Modulr = {
 			width : '150px'
 		}).change(function() {
 			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("font-family", this.value);
+                        Modulr.Globals.push("font");
+                        Modulr.Globals.push(this.value);
 		})
 
 		jQuery.each(fonts, function(i, item) {
@@ -834,6 +875,8 @@ var Modulr = {
 			width : '125px',
 		}).change(function() {
 			$(document).find('*').not('.moduleBtn').not('.sideBarBtn').css("color", this.value);
+                        Modulr.Globals.push("color");
+                        Modulr.Globals.push(this.value);
 		});
 		var sizeUpButton = $('<input/>').attr({
 			value : '\u2191',
@@ -844,6 +887,8 @@ var Modulr = {
 		}).click(function() {
 			fontSize += 25;
 			$('.module_Modulr').css("font-size", fontSize + "%");
+                        Modulr.Globals.push("sizeup");
+                        Modulr.Globals.push("");
 		});
 
 		var sizeDownButton = $('<input/>').attr({
@@ -855,6 +900,8 @@ var Modulr = {
 		}).click(function() {
 			fontSize -= 25;
 			$('.module_Modulr').css("font-size", fontSize + "%");
+                        Modulr.Globals.push("sizedown");
+                        Modulr.Globals.push("");
 		});
 		
 		sizeChangeSet = $('<div/>');
