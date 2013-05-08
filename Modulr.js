@@ -27,13 +27,14 @@ var Modulr = {
 		body.after(notificationBad);
 		notificationBad.css('visibility', 'hidden');
 		notificationGood.css('visibility', 'hidden');
-
+		//add an initial notfication
 		Modulr.notificationGood("Modularizing the page...");
 		Modularizer.modularize(document);
 		console.log(document);
 		if (!Modulr.checkForLoad())
 			Modulr.modularize(document);
 		Modulr.addSideBar();
+		//add ability to tooltip stuff on the page
 		$(document).tooltip();
 	},
 
@@ -248,17 +249,25 @@ var Modulr = {
 		}).button().click(function() {
 
 			if (!isIsolated) {
-				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").css({
-					opacity : "0.8",
-					"text-shadow" : "0 0 20px #000",
-					color : "transparent",
+				$('*').not(module.parents()).not(module.find('*')).not(module)
+				.not(".moduleBtn")
+				.not(".sideBarBtn")
+				.not(".notification_Modulr_good")
+				.not(".notification_Modulr_bad")
+				.not(".side-bar")
+				.not($("body").siblings()).css({
+					visibility: 'hidden'
 				});
 
 			} else {
-				$('*').css({
-					opacity : "1.0",
-					"text-shadow" : "",
-					color : "",
+				$('*').not(module.parents()).not(module.find('*')).not(module)
+				.not(".moduleBtn")
+				.not(".sideBarBtn")
+				.not(".notification_Modulr_good")
+				.not(".notification_Modulr_bad")
+				.not(".side-bar")
+				.not($("body").siblings()).css({
+					visibility: 'visible'
 				});
 			}
 			isIsolated = !isIsolated;
@@ -993,15 +1002,25 @@ var Modularizer = {
 
 	//return the area of the single element
 	getArea : function(elem) {
-		return $(elem).height() * $(elem).width();
+		console.log("finding area of: ");
+		console.log(elem);
+		
+		if (elem == undefined) 
+			return -1;
+		console.log(elem.offsetWidth + "x" + elem.offsetHeight);
+		return elem.offsetWidth*elem.offsetHeight;
+		//return $(elem).height() * $(elem).width();
 	},
 	// return the average area of the elements
 	getAvgElementSize : function(elements) {
 		var totSize = 0;
+		var validElements = 0;                                                                                                                                                                                                                                   
 		for (var i = 0; i < elements.length; i++) {
 			totSize += this.getArea(elements[i]);
+			if (this.getArea(elements[i]) > Modularizer.MIN_AREA)
+				validElements++;
 		}
-		return totSize / elements.length;
+		return totSize / validElements;
 	},
 	// return the area of the largest element
 	getLargestElementSize : function(elements) {
@@ -1111,15 +1130,16 @@ var Modularizer = {
 
 			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
 				continue;
-
-			//is the module and its children big enough?
+		
+			//is the module or its children big enough?
 			if (this.getArea(module) < this.MIN_AREA) {
 				var tooSmall = true;
+				console.log(Modularizer.getArea(module));	
 				$(module).find('*').each(function() {
 					if (!tooSmall)
 						return;
-
-					if (Modularizer.getArea(this) > Modularizer.MIN_AREA)
+					console.log(Modularizer.getArea(this[0]));
+					if (Modularizer.getArea(this[0]) > Modularizer.MIN_AREA)
 						tooSmall = false;
 
 				});

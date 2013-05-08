@@ -105,7 +105,6 @@
                 'height' : properties.containerHeight,
                 'top' : settings.topPos
             });
-            
             settings.tabHandle.css({'top' : 0});
         }
         
