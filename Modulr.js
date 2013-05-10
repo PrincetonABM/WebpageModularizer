@@ -102,10 +102,8 @@ var Modulr = {
 							//bring this element to the very front (so the buttons arent hidden by other elements)
 							zIndex : 9999
 						});
-						if (module.position().top < 27)
-							button.css({
-								top : module.position().top
-							});
+						
+						if (module.offset().top < 27) button.css({top : module.position().top});
 						spacing += button.outerWidth();
 					}
 				},
