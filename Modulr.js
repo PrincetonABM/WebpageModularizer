@@ -52,9 +52,7 @@ var Modulr = {
 			for (var i = 0; i < buttons.length; i++) {
 				module.after(buttons[i]);
 			}
-
-			module.on({
-				click : function() {
+			this.addEventListener('click', function() {
 				
 					if (!showButtons) {
 						for (var i = 0; i < buttons.length; i++) {
@@ -88,9 +86,11 @@ var Modulr = {
 						spacing += button.outerWidth();
 					}
 
-				},
-				mouseover : function() {
-					module.css("box-shadow", "0 0 10px #000");
+				}, true)
+				
+				
+			this.addEventListener('mouseover', function() {
+				module.css("box-shadow", "0 0 10px #000");
 					//reset the positions of the buttons
 					var spacing = 0;
 					for (var i = 0; i < buttons.length; i++) {
@@ -106,17 +106,14 @@ var Modulr = {
 						if (module.offset().top < 27) button.css({top : module.position().top});
 						spacing += button.outerWidth();
 					}
-				},
-				mouseenter : function() {
-					module.css("box-shadow", "0 0 10px #000");
-					//module.css("outline", "green dotted 5px");
-				},
-				mouseleave : function() {
-					module.css("box-shadow", "0 0 0px #000");
-					//module.css("outline", "green dotted 0px");
-
-				}
-			});
+			}, true)	
+			
+			this.addEventListener('mouseout', function() {
+				module.css("box-shadow", "0 0 0px #000");
+			}, true)
+			
+			
+		
 		});
 	},
 	//create and return the buttons
@@ -751,44 +748,37 @@ var Modulr = {
 			width : '125px'
 		});
 		
+		function disablr(evt) {
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
 		var disableBtn = $('<input/>').attr({
 			value : 'Disable webpage',
 			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
-			var	theLinks = document.getElementsByTagName("*");
 			
 			if (!isDisabled)
 			{
-		jQuery.each(theLinks, function(i, item) {
-			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
-				
-				//console.log($(item).attr('click'));
-				$(item).on('click.kill', function(e) {
-					e.preventDefault();
-				})
-				console.log($(item).attr('class'));
-			}
-			//else
-			
-		})
+			$('.module_Modulr').each(function() {
+				this.addEventListener('click', disablr, true);
+				this.addEventListener('mouseover', disablr, true);
+			})
 			disableBtn.button("option", "label", "Enable webpage");
 		}
 		
 		else
 		{
-		jQuery.each(theLinks, function(i, item) {
-			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
-				
-				$(item).off('.kill');
-				console.log('disabling' + i);
-			}
-		})
+		$('.module_Modulr').each(function() {
+				this.removeEventListener('click', disablr, true);
+				this.removeEventListener('mouseover', disablr, true);
+			})
 		disableBtn.button("option", "label", "Disable webpage");
 		}
 		isDisabled = !isDisabled;
 		}).css({
 			width : '125px'
 		});
+		
 		var splitAllModulesBtn = $('<input/>').attr({
 			value : 'Split all Modules',
 			class : 'sideBarBtn'
