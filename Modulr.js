@@ -53,7 +53,7 @@ var Modulr = {
 				module.after(buttons[i]);
 			}
 			this.addEventListener('click', function() {
-				
+					console.log("suppp");
 					if (!showButtons) {
 						for (var i = 0; i < buttons.length; i++) {
 							var button = buttons[i];
@@ -192,14 +192,6 @@ var Modulr = {
 			id : 'sizeup',
 			title: 'Increase this module\'s font size'
 		}).button().click(function() {
-			if (!fontChanged) {
-				//all children of the module need to inherit this font size
-				module.find('*').css({
-					"font-size" : "inherit",
-					"line-height" : "1.4"
-				});
-				fontChanged = true;
-			}
 			fontSize += 25;
 			module.css("font-size", fontSize + "%");
 
@@ -219,11 +211,6 @@ var Modulr = {
 			id : 'sizedown',
 			title : 'Decrease this module\'s font size.'
 		}).button().click(function() {
-			if (!fontChanged) {
-				//all children of the module need to inherit this font size
-				module.find('*').css("font-size", "inherit");
-				fontChanged = true;
-			}
 			fontSize -= 25;
 			module.css("font-size", fontSize + "%");
 		}).css({
