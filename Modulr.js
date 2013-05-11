@@ -911,11 +911,11 @@ var Modularizer = {
 	getArea : function(elem) {
 		console.log("finding area of: ");
 		console.log(elem);
-
+	
 		if (elem == undefined)
 			return -1;
 		console.log(elem.offsetWidth + "x" + elem.offsetHeight);
-		return elem.offsetWidth * elem.offsetHeight;
+		return elem.offsetWidth*elem.offsetHeight;
 		//return $(elem).height() * $(elem).width();
 	},
 	// return the average area of the elements
@@ -1034,12 +1034,13 @@ var Modularizer = {
 			}
 			console.log("processing this module:");
 			console.log(module);
-
+			
 			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
 				continue;
-
+			
 			//is the module or its children big enough?
 			if (this.getArea(module) < this.MIN_AREA) {
+				console.log("The area of this module is too small so checking the children")
 				var tooSmall = true;
 				console.log(Modularizer.getArea(module));
 				$(module).find('*').each(function() {
@@ -1096,7 +1097,7 @@ var Modularizer = {
 				if (!isValid) {
 					continue;
 				}
-
+			
 				newModules.push(module);
 				continue;
 			}
@@ -1104,7 +1105,7 @@ var Modularizer = {
 			var isValid = true;
 			for (var i = 0; i < newModules.length; i++) {
 				var otherModule = $(newModules[i]);
-
+				
 				//check if the other module is a parent of the current module
 				if (otherModule.has($(module)).length > 0) {
 					isValid = false;
@@ -1119,6 +1120,7 @@ var Modularizer = {
 			}
 
 			if ($(module).children().length <= 0) {
+				console.log("successfully adding the module")
 				newModules.push(module);
 				continue;
 			}
@@ -1129,7 +1131,7 @@ var Modularizer = {
 				continue;
 
 			}
-
+			
 			var textLength = $(module).text().length;
 			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original AND if the area of the module is less than the total area of the children
 			// or if the children are within 0.1 of the original parent area
@@ -1146,7 +1148,7 @@ var Modularizer = {
 
 			//is any dimension of the module too small and is the module without text or images?
 			if ($(module).height() < this.MIN_DIMENSION || $(module).width() < this.MIN_DIMENSION) {
-				hasImg = ((module.tagName == "IMG") || ($(module).find("img").length > 0))
+				hasImg = ((module.tagName == "IMG") || ($(module).find("img").length > 0) || (module.tagName == "A") || ($(module).find("a").length > 0))
 				if (!hasImg) {
 					totText = $(module).text()
 					$(module).find('*').not(this.ExcludedString).each(function() {
