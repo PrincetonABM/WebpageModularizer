@@ -94,7 +94,7 @@ var Modulr = {
 			}, true)
 
 			this.addEventListener('mouseover', function() {
-				module.css("box-shadow", "0 0 10px #000");
+				module.children().css("box-shadow", "0 0 10px #000");
 				//reset the positions of the buttons
 				var spacing = 0;
 				for (var i = 0; i < buttons.length; i++) {
@@ -116,7 +116,7 @@ var Modulr = {
 			}, true)
 
 			this.addEventListener('mouseout', function() {
-				module.css("box-shadow", "0 0 0px #000");
+				module.children().css("box-shadow", "0 0 0px #000");
 			}, true)
 
 		});
@@ -944,11 +944,11 @@ var Modulr = {
 		console.log("highlighting modules");
 		if (!highlighted) {
 			Modulr.notificationGood($('.module_Modulr').length + " modules highlighted.");
-			$('.module_Modulr').css({
+			$('.module_Modulr').children().css({
 				"outline" : "blue dashed 3px"
 			});
 		} else {
-			$('.module_Modulr').css({
+			$('.module_Modulr').children().css({
 				outline : ''
 			});
 
