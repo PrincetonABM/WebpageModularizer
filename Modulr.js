@@ -144,6 +144,10 @@ var Modulr = {
 		}).click(function() {
 			if (module.css('visibility') == 'visible' || module.css("visibility").length == 0) {
 				module.css('visibility', 'hidden');
+				// iframes don't work well with the visibility css
+				module.find('iframe').css({
+					opacity : 0
+				});
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] != closeButton)
 						buttons[i].css('visibility', 'hidden');
@@ -155,6 +159,10 @@ var Modulr = {
 				}
 				module.trigger('click');
 				module.css('visibility', 'visible');
+				// iframes don't work well with the visibility css
+				module.find('iframe').css({
+					opacity : 1.0
+				});
 				closeButton.button("option", "label", "X");
 			}
 		});
@@ -666,6 +674,7 @@ var Modulr = {
 				Modulr.notificationGood($('.module_Modulr').length + " modules removed.");
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
+				$('.module_Modulr').find('iframe').css('opacity', '0');
 				//close all buttons
 				$('.moduleBtn').css('visibility', 'hidden');
 				//show only the close buttons
@@ -678,6 +687,7 @@ var Modulr = {
 				$('.moduleBtn').css("visibility", "hidden");
 				//show all modules
 				$('.module_Modulr').css('visibility', 'visible');
+				$('.module_Modulr').find('iframe').css('opacity', '1');
 				//change close button icon
 				$('#close.moduleBtn').button("option", "label", "X");
 				removeModulesBtn.button("option", "label", "Remove all Modules");
