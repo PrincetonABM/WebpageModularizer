@@ -53,73 +53,71 @@ var Modulr = {
 			for (var i = 0; i < buttons.length; i++) {
 				module.after(buttons[i]);
 			}
-
-			module.on({
-				click : function() {
-				
-					if (!showButtons) {
-						for (var i = 0; i < buttons.length; i++) {
-							var button = buttons[i];
-							button.css({
-								visibility : 'visible'
-							});
-						}
-					} else {
-						for (var i = 0; i < buttons.length; i++) {
-							var button = buttons[i];
-							button.css({
-								visibility : 'hidden'
-							});
-						}
-					}
-					showButtons = !showButtons;
-					//reset the positions of the buttons
-					var spacing = 0;
+			this.addEventListener('click', function() {
+				console.log("suppp");
+				if (!showButtons) {
 					for (var i = 0; i < buttons.length; i++) {
 						var button = buttons[i];
 						button.css({
-							position : 'absolute',
-							left : module.position().left + spacing,
-							top : module.position().top - 27,
-							//bring this element to the very front (so the buttons arent hidden by other elements)
-							zIndex : 9999
+							visibility : 'visible'
 						});
-
-						if (module.offset().top < 27) button.css({top : module.position().top});
-						spacing += button.outerWidth();
 					}
-
-				},
-				mouseover : function() {
-					module.css("box-shadow", "0 0 10px #000");
-					//reset the positions of the buttons
-					var spacing = 0;
+				} else {
 					for (var i = 0; i < buttons.length; i++) {
 						var button = buttons[i];
 						button.css({
-							position : 'absolute',
-							left : module.position().left + spacing,
-							top : module.position().top - 27,
-							//bring this element to the very front (so the buttons arent hidden by other elements)
-							zIndex : 9999
+							visibility : 'hidden'
 						});
-						if (module.position().top < 27)
-							button.css({
-								top : module.position().top
-							});
-						spacing += button.outerWidth();
 					}
-				},
-				mouseenter : function() {
-					module.css("box-shadow", "0 0 10px #000");
-					//module.css("outline", "green dotted 5px");
-				},
-				mouseleave : function() {
-					module.css("box-shadow", "0 0 0px #000");
-					//module.css("outline", "green dotted 0px");
-
 				}
-			});
+				showButtons = !showButtons;
+				//reset the positions of the buttons
+				var spacing = 0;
+				for (var i = 0; i < buttons.length; i++) {
+					var button = buttons[i];
+					button.css({
+						position : 'absolute',
+						left : module.position().left + spacing,
+						top : module.position().top - 27,
+						//bring this element to the very front (so the buttons arent hidden by other elements)
+						zIndex : 9999
+					});
+
+					if (module.offset().top < 27)
+						button.css({
+							top : module.position().top
+						});
+					spacing += button.outerWidth();
+				}
+
+			}, true)
+
+			this.addEventListener('mouseover', function() {
+				module.css("box-shadow", "0 0 10px #000");
+				//reset the positions of the buttons
+				var spacing = 0;
+				for (var i = 0; i < buttons.length; i++) {
+					var button = buttons[i];
+					button.css({
+						position : 'absolute',
+						left : module.position().left + spacing,
+						top : module.position().top - 27,
+						//bring this element to the very front (so the buttons arent hidden by other elements)
+						zIndex : 9999
+					});
+
+					if (module.offset().top < 27)
+						button.css({
+							top : module.position().top
+						});
+					spacing += button.outerWidth();
+				}
+			}, true)
+
+			this.addEventListener('mouseout', function() {
+				module.css("box-shadow", "0 0 0px #000");
+			}, true)
+
 		});
 	},
 	//create and return the buttons
@@ -147,6 +145,10 @@ var Modulr = {
 		}).click(function() {
 			if (module.css('visibility') == 'visible' || module.css("visibility").length == 0) {
 				module.css('visibility', 'hidden');
+				// iframes don't work well with the visibility css
+				module.find('iframe').css({
+					opacity : 0
+				});
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] != closeButton)
 						buttons[i].css('visibility', 'hidden');
@@ -158,6 +160,10 @@ var Modulr = {
 				}
 				module.trigger('click');
 				module.css('visibility', 'visible');
+				// iframes don't work well with the visibility css
+				module.find('iframe').css({
+					opacity : 1.0
+				});
 				closeButton.button("option", "label", "X");
 			}
 		});
@@ -196,16 +202,8 @@ var Modulr = {
 			value : '\u2191',
 			class : 'moduleBtn',
 			id : 'sizeup',
-			title: 'Increase this module\'s font size'
+			title : 'Increase this module\'s font size'
 		}).button().click(function() {
-			if (!fontChanged) {
-				//all children of the module need to inherit this font size
-				module.find('*').css({
-					"font-size" : "inherit",
-					"line-height" : "1.4"
-				});
-				fontChanged = true;
-			}
 			fontSize += 25;
 			module.css("font-size", fontSize + "%");
 
@@ -225,11 +223,6 @@ var Modulr = {
 			id : 'sizedown',
 			title : 'Decrease this module\'s font size.'
 		}).button().click(function() {
-			if (!fontChanged) {
-				//all children of the module need to inherit this font size
-				module.find('*').css("font-size", "inherit");
-				fontChanged = true;
-			}
 			fontSize -= 25;
 			module.css("font-size", fontSize + "%");
 		}).css({
@@ -249,25 +242,13 @@ var Modulr = {
 		}).button().click(function() {
 
 			if (!isIsolated) {
-				$('*').not(module.parents()).not(module.find('*')).not(module)
-				.not(".moduleBtn")
-				.not(".sideBarBtn")
-				.not(".notification_Modulr_good")
-				.not(".notification_Modulr_bad")
-				.not(".side-bar")
-				.not($("body").siblings()).css({
-					visibility: 'hidden'
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).css({
+					visibility : 'hidden'
 				});
 
 			} else {
-				$('*').not(module.parents()).not(module.find('*')).not(module)
-				.not(".moduleBtn")
-				.not(".sideBarBtn")
-				.not(".notification_Modulr_good")
-				.not(".notification_Modulr_bad")
-				.not(".side-bar")
-				.not($("body").siblings()).css({
-					visibility: 'visible'
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).css({
+					visibility : 'visible'
 				});
 			}
 			isIsolated = !isIsolated;
@@ -320,7 +301,7 @@ var Modulr = {
 			value : 'M',
 			class : 'moduleBtn',
 			id : 'merge',
-			title: 'Merge this module with other modules.'
+			title : 'Merge this module with other modules.'
 		}).button().click(function() {
 			//merge until the area is larger than that of the original modules
 			var origArea = Modularizer.getArea(module[0]);
@@ -722,7 +703,7 @@ var Modulr = {
 		var sideBar = $('<div class="side-bar"></div>');
 		sideBar.append('<div class="handle" />');
 		sideBar.append(globals);
-		var isHighlighted = false, modulesOpen = true, isDisabled= false;
+		var isHighlighted = false, modulesOpen = true, isDisabled = false;
 
 		/** add the buttons **/
 		var showModulesBtn = $('<input/>').attr({
@@ -748,6 +729,7 @@ var Modulr = {
 				Modulr.notificationGood($('.module_Modulr').length + " modules removed.");
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
+				$('.module_Modulr').find('iframe').css('opacity', '0');
 				//close all buttons
 				$('.moduleBtn').css('visibility', 'hidden');
 				//show only the close buttons
@@ -760,6 +742,7 @@ var Modulr = {
 				$('.moduleBtn').css("visibility", "hidden");
 				//show all modules
 				$('.module_Modulr').css('visibility', 'visible');
+				$('.module_Modulr').find('iframe').css('opacity', '1');
 				//change close button icon
 				$('#close.moduleBtn').button("option", "label", "X");
 				removeModulesBtn.button("option", "label", "Remove all Modules");
@@ -807,45 +790,35 @@ var Modulr = {
 		}).css({
 			width : '125px'
 		});
-		
+
+		function disablr(evt) {
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
+
 		var disableBtn = $('<input/>').attr({
 			value : 'Disable webpage',
 			class : 'sideBarBtn moduleBtn'
 		}).button().click(function() {
-			var	theLinks = document.getElementsByTagName("*");
-			
-			if (!isDisabled)
-			{
-		jQuery.each(theLinks, function(i, item) {
-			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
-				
-				//console.log($(item).attr('click'));
-				$(item).on('click.kill', function(e) {
-					e.preventDefault();
+
+			if (!isDisabled) {
+				$('.module_Modulr').each(function() {
+					this.addEventListener('click', disablr, true);
+					this.addEventListener('mouseover', disablr, true);
 				})
-				console.log($(item).attr('class'));
+				disableBtn.button("option", "label", "Enable webpage");
+			} else {
+				$('.module_Modulr').each(function() {
+					this.removeEventListener('click', disablr, true);
+					this.removeEventListener('mouseover', disablr, true);
+				})
+				disableBtn.button("option", "label", "Disable webpage");
 			}
-			//else
-			
-		})
-			disableBtn.button("option", "label", "Enable webpage");
-		}
-		
-		else
-		{
-		jQuery.each(theLinks, function(i, item) {
-			if (!($(item).hasClass('module_Modulr') || $(item).hasClass('moduleBtn'))) {
-				
-				$(item).off('.kill');
-				console.log('disabling' + i);
-			}
-		})
-		disableBtn.button("option", "label", "Disable webpage");
-		}
-		isDisabled = !isDisabled;
+			isDisabled = !isDisabled;
 		}).css({
 			width : '125px'
 		});
+
 		var splitAllModulesBtn = $('<input/>').attr({
 			value : 'Split all Modules',
 			class : 'sideBarBtn'
@@ -932,7 +905,7 @@ var Modulr = {
                         Modulr.Globals.push("sizedown");
                         Modulr.Globals.push("");
 		});
-		
+
 		sizeChangeSet = $('<div/>');
 		sizeChangeSet.append(sizeUpButton);
 		sizeChangeSet.append(sizeDownButton);
@@ -986,10 +959,11 @@ var Modularizer = {
 	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", "ADDRESS", "DD", "BLOCKQUOTE"],
 	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd, blockquote",
 	//Tags that must not be contained within modules
-	ExcludedTags : ["SCRIPT", "IFRAME"],
-	ExcludedString : "script, iframe",
+	ExcludedTags : ["SCRIPT", "NOSCRIPT"],
+	ExcludedString : "script, noscript",
 	// min pixel area for a module
 	MIN_AREA : 2,
+	MIN_DIMENSION : 10,
 	// max pixel area for a single module
 	MAX_AREA : screen.height * screen.width * 0.8,
 	// max average area for the modules
@@ -1004,8 +978,8 @@ var Modularizer = {
 	getArea : function(elem) {
 		console.log("finding area of: ");
 		console.log(elem);
-		
-		if (elem == undefined) 
+	
+		if (elem == undefined)
 			return -1;
 		console.log(elem.offsetWidth + "x" + elem.offsetHeight);
 		return elem.offsetWidth*elem.offsetHeight;
@@ -1014,7 +988,7 @@ var Modularizer = {
 	// return the average area of the elements
 	getAvgElementSize : function(elements) {
 		var totSize = 0;
-		var validElements = 0;                                                                                                                                                                                                                                   
+		var validElements = 0;
 		for (var i = 0; i < elements.length; i++) {
 			totSize += this.getArea(elements[i]);
 			if (this.getArea(elements[i]) > Modularizer.MIN_AREA)
@@ -1127,14 +1101,15 @@ var Modularizer = {
 			}
 			console.log("processing this module:");
 			console.log(module);
-
+			
 			if ($.inArray(module.tagName, this.ExcludedTags) > -1)
 				continue;
-		
+			
 			//is the module or its children big enough?
 			if (this.getArea(module) < this.MIN_AREA) {
+				console.log("The area of this module is too small so checking the children")
 				var tooSmall = true;
-				console.log(Modularizer.getArea(module));	
+				console.log(Modularizer.getArea(module));
 				$(module).find('*').each(function() {
 					if (!tooSmall)
 						return;
@@ -1189,7 +1164,7 @@ var Modularizer = {
 				if (!isValid) {
 					continue;
 				}
-
+			
 				newModules.push(module);
 				continue;
 			}
@@ -1197,7 +1172,7 @@ var Modularizer = {
 			var isValid = true;
 			for (var i = 0; i < newModules.length; i++) {
 				var otherModule = $(newModules[i]);
-
+				
 				//check if the other module is a parent of the current module
 				if (otherModule.has($(module)).length > 0) {
 					isValid = false;
@@ -1212,6 +1187,7 @@ var Modularizer = {
 			}
 
 			if ($(module).children().length <= 0) {
+				console.log("successfully adding the module")
 				newModules.push(module);
 				continue;
 			}
@@ -1222,18 +1198,40 @@ var Modularizer = {
 				continue;
 
 			}
-
+			
 			var textLength = $(module).text().length;
+			/** I commented this code out because it is adding dynamically changing content as the children, creating
+			 * problems for the modularizer 
+			 */		
 			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original AND if the area of the module is less than the total area of the children
 			// or if the children are within 0.1 of the original parent area
 			//add them for processing
+			/***
 			if (textLength > 0 && $(module).children().length > 0) {
 				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) && (this.getArea(module) < this.getTotalArea($(module).children().toArray()) || Math.abs(this.getArea(module) - this.getTotalArea($(module).children().toArray())) < 0.1 * this.getArea(module))) {
-					console.log("adding the children");
+					console.log("adding the children...");
 					$(module).children(this.SplitString).each(function() {
-						modules.push($(this)[0]);
+						console.log("child: ");
+						console.log(this);
+						console.log(Modularizer.getArea(this));
+						modules.push(this);
 					});
 					continue;
+				}
+			}
+			**/
+
+			//is any dimension of the module too small and is the module without text or images?
+			if ($(module).height() < this.MIN_DIMENSION || $(module).width() < this.MIN_DIMENSION) {
+				hasImg = ((module.tagName == "IMG") || ($(module).find("img").length > 0) || (module.tagName == "A") || ($(module).find("a").length > 0))
+				if (!hasImg) {
+					totText = $(module).text()
+					$(module).find('*').not(this.ExcludedString).each(function() {
+						totText += $(this).text()
+					})
+					if (totText.length == 0) {
+						continue;
+					}
 				}
 			}
 
