@@ -892,8 +892,8 @@ var Modularizer = {
 	SplitTags : ["MAP", "ARTICLE", "CANVAS", "DIV", "FIGURE", "FOOTER", "HEADER", "P", "SECTION", "SPAN", "OL", "UL", "TBODY", "TABLE", "H1", "H2", "H3", "H4", "H5", "H6", "PRE", "DL", "ADDRESS", "DD", "BLOCKQUOTE"],
 	SplitString : "map, article, canvas, div, figure, footer, header, img, p, section, span, ol, ul, tbody, table, h1, h2, h3, h4, h5, h6, pre, dl, address, dd, blockquote",
 	//Tags that must not be contained within modules
-	ExcludedTags : ["SCRIPT", "IFRAME", "NOSCRIPT"],
-	ExcludedString : "script, iframe, noscript",
+	ExcludedTags : ["SCRIPT", "NOSCRIPT"],
+	ExcludedString : "script, noscript",
 	// min pixel area for a module
 	MIN_AREA : 2,
 	MIN_DIMENSION : 10,
