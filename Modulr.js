@@ -28,6 +28,7 @@ var Modulr = {
 		notificationGood.css('visibility', 'hidden');
 		//add an initial notfication
 		Modulr.notificationGood("Modularizing the page...");
+		
 		Modularizer.modularize(document);
 		console.log(document);
 		if (!Modulr.checkForLoad())
@@ -894,6 +895,21 @@ var Modularizer = {
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "NOSCRIPT"],
 	ExcludedString : "script, noscript",
+	// all CSS properties
+	allCSS : ['font-family','font-size','font-weight','font-style','color',
+	'text-transform','text-decoration','letter-spacing','word-spacing',
+	'line-height','text-align','vertical-align','direction','background-color',
+	'background-image','background-repeat','background-position',
+	'background-attachment','opacity','width','height','top','right','bottom',
+	'left','margin-top','margin-right','margin-bottom','margin-left',
+	'padding-top','padding-right','padding-bottom','padding-left',
+	'border-top-width','border-right-width','border-bottom-width',
+	'border-left-width','border-top-color','border-right-color',
+	'border-bottom-color','border-left-color','border-top-style',
+	'border-right-style','border-bottom-style','border-left-style','position',
+	'display','visibility','z-index','overflow-x','overflow-y','white-space',
+	'clip','float','clear','cursor','list-style-image','list-style-position',
+	'list-style-type','marker-offset'],
 	// min pixel area for a module
 	MIN_AREA : 2,
 	MIN_DIMENSION : 10,
@@ -997,6 +1013,19 @@ var Modularizer = {
 		modules = this.processModules(target);
 		console.log("there are modules: " + modules.length);
 		this.wrapModules(modules);
+		
+		//pass the css of the original parents to the modules
+		/**
+		$('.module_Modulr').each(function() {
+			if ($(this).parent()[0] == undefined)
+				return;
+			origCSS = $(this).parent().css(Modularizer.allCSS);
+			console.log(origCSS);
+			$(this).css(origCSS);
+		});
+		**/
+		
+		
 	},
 
 	//wrap the modules in a div tag with a specific class
@@ -1013,7 +1042,7 @@ var Modularizer = {
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
 			// Changed id to include the number of the module
-			module.wrap('<div class="module_Modulr" id = "unset" />');
+			module.wrap('<p class="module_Modulr" id = "unset" />');
 			module.parent().data('Module_number', Modularizer.currentModuleNumber);
 			Modularizer.currentModuleNumber++;
 		}
