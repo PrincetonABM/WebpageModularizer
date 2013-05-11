@@ -505,7 +505,7 @@ var Modulr = {
                         console.log('style');
                         console.log(style);*/
 			var current = $(this).data("Module_number");
-			arr[current] = style;
+			arr[current] = style.cssText;
 			var html = $(this).html();
 			tags[current] = html.match(/<[^>\s]*/g);
 		});
