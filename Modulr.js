@@ -324,10 +324,9 @@ var Modulr = {
 					visibility : 'hidden'
 				});
 			}
-
+			$('.moduleBtn').css('visibility', 'hidden');
 			//re-call this function as there are now new modules
 			Modulr.modularize(document);
-
 		}).css({
 			position : 'absolute',
 			left : module.position().left + spacing,
@@ -1124,7 +1123,7 @@ var Modularizer = {
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
 			// Changed id to include the number of the module
-			module.wrap('<p class="module_Modulr" id = "unset" />');
+			module.wrap('<span class="module_Modulr" id = "unset" />');
 			module.parent().data('Module_number', Modularizer.currentModuleNumber);
 			Modularizer.currentModuleNumber++;
 		}
