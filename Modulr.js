@@ -79,9 +79,7 @@ var Modulr = {
 					button.css({
 						position : 'absolute',
 						left : module.position().left + spacing,
-						top : module.position().top - 27,
-						//bring this element to the very front (so the buttons arent hidden by other elements)
-						zIndex : 9999
+						top : module.position().top - 27
 					});
 
 					if (module.offset().top < 27)
@@ -150,6 +148,14 @@ var Modulr = {
 				module.find('iframe').css({
 					opacity : 0
 				});
+				//if the module contains a flash object stopping it from playing involves a different method
+				if (module.find('object').length > 0) {
+					var flashParent = module.find('object').parent();
+					var flashClone = module.find('object').clone(true);
+					module.find('object').remove();
+					flashParent.html(flashClone);
+				}
+				
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] != closeButton)
 						buttons[i].css('visibility', 'hidden');
@@ -284,9 +290,6 @@ var Modulr = {
 				Modulr.notificationBad("This module can't be split");
 			}
 			
-			
-			
-
 			
 			//recall this function as there are now new modules
 			Modulr.modularize(document);
@@ -739,6 +742,14 @@ var Modulr = {
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
 				$('.module_Modulr').find('iframe').css('opacity', '0');
+				
+				//stop all flash from playing
+				if ($('.module_Modulr').find('object').length > 0) {
+					var flashParent = $('.module_Modulr').find('object').parent();
+					var flashClone = $('.module_Modulr').find('object').clone(true);
+					$('.module_Modulr').find('object').remove();
+					flashParent.html(flashClone);
+				}
 				//close all buttons
 				$('.moduleBtn').css('visibility', 'hidden');
 				//show only the close buttons

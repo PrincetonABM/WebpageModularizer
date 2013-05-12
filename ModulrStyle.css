@@ -1,5 +1,6 @@
 .module_Modulr {
 }
+
 hr {
     border: 0;
     height: 1px;
@@ -48,10 +49,12 @@ hr {
 	position: fixed;
 }
 
-
+.moduleBtn {
+	z-index: 70000000;
+}
 .sideBarBtn {
 	opacity: 1.0;
-	z-index: 9001;
+	z-index: 70000001;
 	font-size: .8em !important;
 	margin: 3px;
 }
