@@ -280,10 +280,6 @@ var Modulr = {
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
 				button.remove();
-				/*
-				 button.css({
-				 visibility : 'hidden'
-				 });*/
 			}
 			
 			if (!Modulr.split(module)) {
