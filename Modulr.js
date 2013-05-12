@@ -270,12 +270,6 @@ var Modulr = {
 			id : 'split',
 			title : 'Divide this module into smaller modules.'
 		}).button().click(function() {
-
-			if (!Modulr.split(module)) {
-				Modulr.notificationBad("This module can't be split");
-				return;
-			}
-
 			//remove the buttons associated with the original (now split) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
@@ -285,6 +279,15 @@ var Modulr = {
 				 visibility : 'hidden'
 				 });*/
 			}
+			
+			if (!Modulr.split(module)) {
+				Modulr.notificationBad("This module can't be split");
+			}
+			
+			
+			
+
+			
 			//recall this function as there are now new modules
 			Modulr.modularize(document);
 
@@ -420,6 +423,7 @@ var Modulr = {
 		return parent;
 	},
 	split : function(module) {
+		
 		//unwrap the module
 		var child = module.children().eq(0);
 		if (child.children(this.SplitTags).length <= 0) {
@@ -443,7 +447,11 @@ var Modulr = {
 		if (subModules.length == 0) {
 			return false;
 		}
-
+		if (subModules.length == 1) {
+			Modularizer.wrapModules(subModules);
+			return false;
+		}
+		
 		var isValid = true;
 		//are any of the modules the parent? this can happen if a child doesn't have the right tag
 		for (var i = 0; i < subModules.length; i++) {
@@ -1145,7 +1153,6 @@ var Modularizer = {
 					console.log(Modularizer.getArea(this[0]));
 					if (Modularizer.getArea(this[0]) > Modularizer.MIN_AREA)
 						tooSmall = false;
-
 				});
 
 				if (tooSmall) {
