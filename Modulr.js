@@ -249,12 +249,12 @@ var Modulr = {
 		}).button().click(function() {
 
 			if (!isIsolated) {
-				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).css({
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).not('#fonts_Modulr').css({
 					visibility : 'hidden'
 				});
 
 			} else {
-				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).css({
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).not('#fonts_Modulr').css({
 					visibility : 'visible'
 				});
 			}
@@ -379,7 +379,7 @@ var Modulr = {
 		})
 
 		jQuery.each(fonts, function(i, item) {
-			var opt = $('<option/>');
+			var opt = $('<option id="fonts_Modulr"/>');
 			opt.attr('value : "' + item + '"');
 			opt.attr("style = 'font-family': '" + item + "'");
 			opt.text(item.split(',')[0]);
