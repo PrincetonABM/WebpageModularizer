@@ -1242,15 +1242,11 @@ var Modularizer = {
 			}
 			
 			var textLength = $(module).text().length;
-			/** I commented this code out because it is adding dynamically changing content as the children, creating
-			 * problems for the modularizer 
-			 */		
 			//if the children have a longer aggregate text length or the children have an aggregate text length that is close to the original AND if the area of the module is less than the total area of the children
 			// or if the children are within 0.1 of the original parent area
 			//add them for processing
-			/***
 			if (textLength > 0 && $(module).children().length > 0) {
-				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) && (this.getArea(module) < this.getTotalArea($(module).children().toArray()) || Math.abs(this.getArea(module) - this.getTotalArea($(module).children().toArray())) < 0.1 * this.getArea(module))) {
+				if (($(module).children(this.SplitString).text().length > textLength || Math.abs($(module).children(this.SplitString).text().length - textLength) < 0.1 * textLength) && (this.getArea(module) < this.getTotalArea($(module).children().toArray()))) {
 					console.log("adding the children...");
 					$(module).children(this.SplitString).each(function() {
 						console.log("child: ");
@@ -1261,7 +1257,6 @@ var Modularizer = {
 					continue;
 				}
 			}
-			**/
 
 			//is any dimension of the module too small and is the module without text or images?
 			if ($(module).height() < this.MIN_DIMENSION || $(module).width() < this.MIN_DIMENSION) {
