@@ -312,7 +312,7 @@ var Modulr = {
 			id : 'merge',
 			title : 'Merge this module with other modules.'
 		}).button().click(function() {
-			//merge until the area is larger than that of the original modules
+			//merge until the area is larger than that of the original modules to a certain degree
 			var origArea = Modularizer.getArea(module[0]);
 			var newParent = module;
 			do {
@@ -321,7 +321,7 @@ var Modulr = {
 					break;
 				console.log("new parent area: " + Modularizer.getArea(newParent[0]));
 				console.log("old area: " + origArea);
-			} while (newParent != null && Modularizer.getArea(newParent[0]) <= origArea);
+			} while (newParent != null && Modularizer.getArea(newParent[0]) <= origArea*1.5);
 
 			//remove the buttons associated with the original (now merged) module
 			for (var i = 0; i < buttons.length; i++) {
