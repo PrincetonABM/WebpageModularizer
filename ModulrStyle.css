@@ -54,6 +54,7 @@ hr {
 }
 .sideBarBtn {
 	opacity: 1.0;
+	width: 150px !important;
 	z-index: 70000001;
 	font-size: .8em !important;
 	margin: 3px;
