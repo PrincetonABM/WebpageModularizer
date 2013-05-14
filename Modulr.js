@@ -55,7 +55,6 @@ var Modulr = {
 				module.after(buttons[i]);
 			}
 			this.addEventListener('click', function() {
-				console.log("suppp");
 				if (!showButtons) {
 					for (var i = 0; i < buttons.length; i++) {
 						var button = buttons[i];
