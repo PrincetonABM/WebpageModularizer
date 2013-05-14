@@ -799,6 +799,7 @@ var Modulr = {
 			$('.side-bar').off();
 			$('.sideBarBtn').remove();
 			$('.side-bar').remove();
+                        $('.module_Modulr').children().unwrap();
 		}).css({
 			width : '125px'
 		});
