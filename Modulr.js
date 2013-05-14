@@ -255,12 +255,12 @@ var Modulr = {
 		}).button().click(function() {
 
 			if (!isIsolated) {
-				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).not('#fonts_Modulr').css({
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($(".side-bar").find("*")).not($("body").siblings()).not('#fonts_Modulr').css({
 					visibility : 'hidden'
 				});
 
 			} else {
-				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($("body").siblings()).not('#fonts_Modulr').css({
+				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($(".side-bar").find("*")).not($("body").siblings()).not('#fonts_Modulr').css({
 					visibility : 'visible'
 				});
 			}
@@ -487,17 +487,6 @@ var Modulr = {
 		var tags = [];
 		wrappedModules.each(function() {
 			var style = window.getComputedStyle($(this)[0]);
-                        /*var style = [];
-                        style['visibility'] = $(this)[0].style.visibility;
-                        style['top'] = $(this)[0].style.getPropertyValue('top');
-                        style['left'] = $(this)[0].style.getPropertyValue('left');
-                        style['font-size'] = $(this)[0].style.getPropertyValue('font-size');
-                        style['opacity'] = $(this)[0].style.getPropertyValue('opacity');
-                        style['color'] = $(this)[0].style.getPropertyValue('color');
-                        style['text-shadow'] = $(this)[0].style.getPropertyValue('text-shadow');
-                        style['font-family'] = $(this)[0].style.getPropertyValue('font-family');
-                        console.log('style');
-                        console.log(style);*/
 			var current = $(this).data("Module_number");
 			arr[current] = style.cssText;
 			var html = $(this).html();
@@ -505,11 +494,6 @@ var Modulr = {
 		});
 		console.log(tags);
                 console.log(arr);
-		/*for (var i = 0; i < tags.length; i++) {
-		 tags[i] = JSON.stringify(tags[i]);
-		 }
-		 console.log('---------------------------');
-		 console.log(tags);*/
 		chrome.runtime.sendMessage({
 			command : "save",
 			attributes : JSON.stringify(arr),
@@ -574,7 +558,7 @@ var Modulr = {
                         
                         Modulr.Globals = globals;
                         
-                        // Perform the saved splid and merge operations
+                        // Perform the saved split and merge operations
 			for (var i = 0; i < splitMoves.length / 3; i++) {
 				var modules = $(":data(Module_number)");
 				var offset = 0;
@@ -679,10 +663,6 @@ var Modulr = {
 						console.log(tags[j]);
                                                 //console.log(attributes[j]);
 						current[0].setAttribute("style", attributes[j]);
-                                                /*for (var k = 0; k < attributes[j].length; k++) {
-                                                    current[0].style.setProperty(Object.keys(attributes[j])[k], attributes[j][Object.keys(attributes[j])[k]]);
-                                                    console.log('Setting ' + Object.keys(attributes[j])[k] + ' to ' + attributes[j][Object.keys(attributes[j])[k]]);
-                                                }*/
 						attributes.splice(j, 1);
 						tags.splice(j, 1);
 						break;
