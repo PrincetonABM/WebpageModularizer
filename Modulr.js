@@ -143,7 +143,8 @@ var Modulr = {
 		}).click(function() {
 			if (module.css('visibility') == 'visible' || module.css("visibility").length == 0) {
 				module.css('visibility', 'hidden');
-				// iframes don't work well with the visibility css
+				module.children().css('visibility', 'hidden');
+				// iframes don't work well with the visibility css so must change opacity 
 				module.find('iframe').css({
 					opacity : 0
 				});
@@ -173,6 +174,7 @@ var Modulr = {
 				}
 				module.trigger('click');
 				module.css('visibility', 'visible');
+				module.children().css('visibility', 'visible');
 				// iframes don't work well with the visibility css
 				module.find('iframe').css({
 					opacity : 1.0
@@ -722,6 +724,7 @@ var Modulr = {
 				Modulr.notificationGood($('.module_Modulr').length + " modules removed.");
 				//hide all modules
 				$('.module_Modulr').css('visibility', 'hidden');
+				$('.module_Modulr').children().css('visibility', 'hidden');
 				$('.module_Modulr').find('iframe').css('opacity', '0');
 				
 				//stop all flash and embeds from playing
@@ -747,8 +750,10 @@ var Modulr = {
 			} else {
 				//hide all module buttons
 				$('.moduleBtn').css("visibility", "hidden");
+				
 				//show all modules
 				$('.module_Modulr').css('visibility', 'visible');
+				$('.module_Modulr').children().css('visibility', 'visible');
 				$('.module_Modulr').find('iframe').css('opacity', '1');
 				//change close button icon
 				$('#close.moduleBtn').button("option", "label", "X");
@@ -826,26 +831,6 @@ var Modulr = {
 			width : '125px'
 		});
 
-		var splitAllModulesBtn = $('<input/>').attr({
-			value : 'Split all Modules',
-			class : 'sideBarBtn'
-		}).button().click(function() {
-			$('.moduleBtn#split').trigger('click');
-                        Modulr.Globals.push('split');
-                        Modulr.Globals.push('');
-		}).css({
-			width : '125px'
-		});
-		var mergeAllModulesBtn = $('<input/>').attr({
-			value : 'Merge all Modules',
-			class : 'sideBarBtn'
-		}).button().click(function() {
-			$('.moduleBtn#merge').trigger('click');
-                        Modulr.Globals.push('merge');
-                        Modulr.Globals.push('');
-		}).css({
-			width : '125px'
-		});
 
 		var openOptionsBtn = $('<input/>').attr({
 			value : 'Options',
@@ -918,8 +903,6 @@ var Modulr = {
 		sizeChangeSet.append(sizeDownButton);
 		globals.append(showModulesBtn);
 		globals.append(removeModulesBtn);
-		globals.append(splitAllModulesBtn);
-		globals.append(mergeAllModulesBtn);
 		globals.append(select1);
 		globals.append(colorButton);
 		globals.append(sizeChangeSet);
