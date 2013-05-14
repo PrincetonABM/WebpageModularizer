@@ -472,7 +472,7 @@ var Modulr = {
 		if (subModules.length == 0) {
 			return false;
 		}
-		if (subModules.length == 1) {
+		if (subModules.length == 1 && child == subModules[0]) {
 			Modularizer.wrapModules(subModules);
 			return false;
 		}
