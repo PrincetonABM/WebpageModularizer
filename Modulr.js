@@ -16,7 +16,7 @@ var Modulr = {
 	processing : true,
 	// Sequence of customizations made by the user
 	Moves : [],
-        Globals : [],
+    Globals : [],
 
 	process : function(doc) {
 		//add the notification divs
@@ -147,13 +147,20 @@ var Modulr = {
 				module.find('iframe').css({
 					opacity : 0
 				});
-				//if the module contains a flash object stopping it from playing involves a different method
+				//if the module contains a flash or embed object stopping it from playing involves a different method
 				if (module.find('object').length > 0) {
 					var flashParent = module.find('object').parent();
 					var flashClone = module.find('object').clone(true);
 					module.find('object').remove();
 					flashParent.html(flashClone);
 				}
+				if (module.find('embed').length > 0) {
+					var embedParent = module.find('embed').parent();
+					var embedClone = module.find('embed').clone(true);
+					module.find('embed').remove();
+					flashParent.html(flashClone);
+				}
+				
 				
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] != closeButton)
@@ -305,7 +312,7 @@ var Modulr = {
 			id : 'merge',
 			title : 'Merge this module with other modules.'
 		}).button().click(function() {
-			//merge until the area is larger than that of the original modules
+			//merge until the area is larger than that of the original modules to a certain degree
 			var origArea = Modularizer.getArea(module[0]);
 			var newParent = module;
 			do {
@@ -314,7 +321,7 @@ var Modulr = {
 					break;
 				console.log("new parent area: " + Modularizer.getArea(newParent[0]));
 				console.log("old area: " + origArea);
-			} while (newParent != null && Modularizer.getArea(newParent[0]) <= origArea);
+			} while (newParent != null && Modularizer.getArea(newParent[0]) <= origArea*1.5);
 
 			//remove the buttons associated with the original (now merged) module
 			for (var i = 0; i < buttons.length; i++) {
@@ -717,11 +724,17 @@ var Modulr = {
 				$('.module_Modulr').css('visibility', 'hidden');
 				$('.module_Modulr').find('iframe').css('opacity', '0');
 				
-				//stop all flash from playing
+				//stop all flash and embeds from playing
 				if ($('.module_Modulr').find('object').length > 0) {
 					var flashParent = $('.module_Modulr').find('object').parent();
 					var flashClone = $('.module_Modulr').find('object').clone(true);
 					$('.module_Modulr').find('object').remove();
+					flashParent.html(flashClone);
+				}
+				if ($('.module_Modulr').find('embed').length > 0) {
+					var embedParent = $('.module_Modulr').find('embed').parent();
+					var embedClone = $('.module_Modulr').find('embed').clone(true);
+					$('.module_Modulr').find('embed').remove();
 					flashParent.html(flashClone);
 				}
 				//close all buttons
@@ -956,21 +969,6 @@ var Modularizer = {
 	//Tags that must not be contained within modules
 	ExcludedTags : ["SCRIPT", "NOSCRIPT"],
 	ExcludedString : "script, noscript",
-	// all CSS properties
-	allCSS : ['font-family','font-size','font-weight','font-style','color',
-	'text-transform','text-decoration','letter-spacing','word-spacing',
-	'line-height','text-align','vertical-align','direction','background-color',
-	'background-image','background-repeat','background-position',
-	'background-attachment','opacity','width','height','top','right','bottom',
-	'left','margin-top','margin-right','margin-bottom','margin-left',
-	'padding-top','padding-right','padding-bottom','padding-left',
-	'border-top-width','border-right-width','border-bottom-width',
-	'border-left-width','border-top-color','border-right-color',
-	'border-bottom-color','border-left-color','border-top-style',
-	'border-right-style','border-bottom-style','border-left-style','position',
-	'display','visibility','z-index','overflow-x','overflow-y','white-space',
-	'clip','float','clear','cursor','list-style-image','list-style-position',
-	'list-style-type','marker-offset'],
 	// min pixel area for a module
 	MIN_AREA : 2,
 	MIN_DIMENSION : 10,
@@ -983,7 +981,7 @@ var Modularizer = {
 	//we don't want the algorithm to run forever, so there are a max number of levels that are traversed
 	MAX_DEPTH : 50,
 	currentModuleNumber : 0,
-
+ 
 	//return the area of the single element
 	getArea : function(elem) {
 		console.log("finding area of: ");
@@ -1073,6 +1071,8 @@ var Modularizer = {
 		console.log("There are elements: " + target.length);
 		modules = this.processModules(target);
 		console.log("there are modules: " + modules.length);
+		
+		console.log("Screen AREA: " + (screen.height * screen.width));
 		this.wrapModules(modules);
 		
 		//pass the css of the original parents to the modules
@@ -1098,7 +1098,7 @@ var Modularizer = {
 				i--;
 				continue;
 			}
-
+				
 			var module = $(modules[i]);
 			console.log("AREA: " + module.width() * module.height());
 			console.log(modules[i]);
