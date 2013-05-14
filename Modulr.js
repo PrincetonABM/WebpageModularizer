@@ -148,7 +148,7 @@ var Modulr = {
 				module.find('iframe').css({
 					opacity : 0
 				});
-				//if the module contains a flash or embed object stopping it from playing involves a different method
+				//if the module contains a flash, embed, or iframe object stopping it from playing involves a different method
 				if (module.find('object').length > 0) {
 					var flashParent = module.find('object').parent();
 					var flashClone = module.find('object').clone(true);
@@ -159,8 +159,16 @@ var Modulr = {
 					var embedParent = module.find('embed').parent();
 					var embedClone = module.find('embed').clone(true);
 					module.find('embed').remove();
-					flashParent.html(flashClone);
+					embedParent.html(embedClone);
 				}
+				if (module.find('iframe').length > 0) {
+					var iframeParent = module.find('iframe').parent();
+					var iframeClone = module.find('iframe').clone(true);
+					module.find('iframe').remove();
+					iframeParent.html(iframeClone);
+				}
+				
+				
 				
 				
 				for (var i = 0; i < buttons.length; i++) {
@@ -738,8 +746,15 @@ var Modulr = {
 					var embedParent = $('.module_Modulr').find('embed').parent();
 					var embedClone = $('.module_Modulr').find('embed').clone(true);
 					$('.module_Modulr').find('embed').remove();
-					flashParent.html(flashClone);
+					embedParent.html(embedClone);
 				}
+				if ($('.module_Modulr').find('iframe').length > 0) {
+					var iframeParent = $('.module_Modulr').find('iframe').parent();
+					var iframeClone = $('.module_Modulr').find('iframe').clone(true);
+					$('.module_Modulr').find('iframe').remove();
+					iframeParent.html(iframeClone);
+				}
+				
 				//close all buttons
 				$('.moduleBtn').css('visibility', 'hidden');
 				//show only the close buttons
