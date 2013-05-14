@@ -263,7 +263,7 @@ var Modulr = {
 			id : 'isolate',
 			title : 'Isolate this module on the page.'
 		}).button().click(function() {
-
+			
 			if (!isIsolated) {
 				$('*').not(module.parents()).not(module.find('*')).not(module).not(".moduleBtn").not(".sideBarBtn").not(".notification_Modulr_good").not(".notification_Modulr_bad").not(".side-bar").not($(".side-bar").find("*")).not($("body").siblings()).not('#fonts_Modulr').css({
 					visibility : 'hidden'
@@ -292,6 +292,11 @@ var Modulr = {
 			id : 'split',
 			title : 'Divide this module into smaller modules.'
 		}).button().click(function() {
+			if (isIsolated) {
+				Modulr.notificationGood("Un-isolate this module to split it");
+				return;
+			}
+			
 			//remove the buttons associated with the original (now split) module
 			for (var i = 0; i < buttons.length; i++) {
 				var button = buttons[i];
@@ -322,6 +327,12 @@ var Modulr = {
 			id : 'merge',
 			title : 'Merge this module with other modules.'
 		}).button().click(function() {
+			if (isIsolated) {
+				Modulr.notificationGood("Un-isolate this module to merge it");
+				return;
+			}
+			
+			
 			//merge until the area is larger than that of the original modules to a certain degree
 			var origArea = Modularizer.getArea(module[0]);
 			var newParent = module;
@@ -351,7 +362,7 @@ var Modulr = {
 			width : '2%',
 			visibility : 'hidden'
 		});
-
+		
 		spacing += splitButton.outerWidth();
 		var colorButton = $('<input/>').attr({
 			type : 'color',
